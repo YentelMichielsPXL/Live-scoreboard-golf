@@ -1,0 +1,41 @@
+services:
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: golf
+      POSTGRES_PASSWORD: golf
+      POSTGRES_DB: golfdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U golf -d golfdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://golf:golf@db:5432/golfdb
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Voorkomt dat lokale node_modules die in de container overschrijven
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
