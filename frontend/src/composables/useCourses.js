@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 export function useCourses() {
   const courses = ref([])
-  const API_URL = 'http://localhost:8000/courses/'
+  const API_URL = `http://${window.location.hostname}:8000/courses/`
 
   const fetchCourses = async () => {
     try {
@@ -18,7 +18,7 @@ export function useCourses() {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
          },
         body: JSON.stringify(courseData)
       })
@@ -34,7 +34,7 @@ export function useCourses() {
 
   const deleteCourse = async (id) => {
     try {
-      const res = await fetch(`${API_URL}${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+      const res = await fetch(`${API_URL}${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` } })
       if (res.ok) await fetchCourses()
     } catch (error) {
       console.error("Fout bij verwijderen baan:", error)
@@ -48,7 +48,7 @@ export function useCourses() {
       const res = await fetch(`${API_URL}${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
          },
         body: JSON.stringify(courseData)
       })

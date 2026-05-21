@@ -30,8 +30,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  const isAuthenticated = !!localStorage.getItem('token')
-  const userRole = localStorage.getItem('role')
+  const isAuthenticated = !!sessionStorage.getItem('token')
+  const userRole = sessionStorage.getItem('role')
 
   // Voorkom een oneindige lus bij de loginpagina
   if (to.path === '/login') {

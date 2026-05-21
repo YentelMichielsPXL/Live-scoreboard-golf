@@ -13,7 +13,6 @@ router = APIRouter(
     tags=["players"]
 )
 
-# Hulpschema om de statuswijziging (DQ / WD / ACTIVE) veilig te ontvangen
 class PlayerStatusUpdate(BaseModel):
     status: str
 
@@ -23,7 +22,6 @@ def get_tournament_players(tournament_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=schemas.Player)
 def add_player_to_tournament(tournament_id: int, player: schemas.PlayerCreate, db: Session = Depends(get_db)):
-    # Controleer eerst of het toernooi wel echt bestaat
     tournament = db.query(models.Tournament).filter(models.Tournament.id == tournament_id).first()
     if not tournament:
         raise HTTPException(status_code=404, detail="Toernooi niet gevonden")
@@ -44,9 +42,8 @@ def update_player_status(tournament_id: int, player_id: int, status_update: Play
     if not db_player:
         raise HTTPException(status_code=404, detail="Speler niet gevonden in dit toernooi")
     
-    # Valideer de status invoer
-    if status_update.status not in ["ACTIVE", "DQ", "WD"]:
-        raise HTTPException(status_code=400, detail="Ongeldige status. Kies uit ACTIVE, DQ of WD")
+    if status_update.status not in ["ACTIVE", "DQ", "WD", "CUT"]:
+        raise HTTPException(status_code=400, detail="Ongeldige status.")
         
     db_player.status = status_update.status
     db.commit()
@@ -68,8 +65,6 @@ async def upload_players_csv(tournament_id: int, file: UploadFile = File(...), d
     delimiter = ';' if ';' in first_line else ','
     
     csv_reader = csv.DictReader(io.StringIO(decoded_content), delimiter=delimiter)
-    
-    # We vangen de gedetecteerde velden op voor eventuele foutrapportage
     detected_headers = csv_reader.fieldnames
     
     players_added = 0
@@ -85,6 +80,12 @@ async def upload_players_csv(tournament_id: int, file: UploadFile = File(...), d
 
             if not first_name or not last_name:
                 continue
+            
+            gender_str = row.get('gender', row.get('GENDER', 'M')).strip().upper()
+            if gender_str == 'V':
+                gender_str = 'F'
+            if gender_str not in ['M', 'F']:
+                gender_str = 'M'
 
             handicap_str = row.get('handicap', row.get('HANDICAP', '')).strip().replace(',', '.')
             handicap_val = float(handicap_str) if handicap_str else None
@@ -94,18 +95,18 @@ async def upload_players_csv(tournament_id: int, file: UploadFile = File(...), d
                 last_name=last_name,
                 handicap=handicap_val,
                 tournament_id=tournament_id,
-                status="ACTIVE"
+                status="ACTIVE",
+                gender=gender_str
             )
             db.add(db_player)
             players_added += 1
         except Exception:
             continue
 
-    # HIER ZIT DE EXTRA CONTROLE:
     if players_added == 0:
         raise HTTPException(
             status_code=400, 
-            detail=f"0 spelers geïmporteerd. De kolomtitels in je CSV kloppen niet. Gevonden kolommen: {detected_headers}. Zorg dat de eerste rij exact 'first_name', 'last_name' en 'handicap' bevat."
+            detail=f"0 spelers geïmporteerd. Gevonden kolommen: {detected_headers}. Zorg voor 'first_name', 'last_name', 'handicap' (en optioneel 'gender')."
         )
 
     db.commit()

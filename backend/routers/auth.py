@@ -11,7 +11,6 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# Activeer het officiële FastAPI Bearer security schema voor Swagger UI
 security = HTTPBearer()
 
 def hash_password(password: str) -> str:

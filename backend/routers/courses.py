@@ -22,12 +22,19 @@ def create_course(
     course: schemas.CourseCreate, 
     db: Session = Depends(get_db),
     current_admin: models.User = Depends(require_admin)):
-    db_course = models.Course(name=course.name, num_holes=course.num_holes, course_rating=course.course_rating, slope_rating=course.slope_rating)
+    
+    db_course = models.Course(
+        name=course.name, 
+        num_holes=course.num_holes, 
+        course_rating_men=course.course_rating_men, 
+        slope_rating_men=course.slope_rating_men,
+        course_rating_women=course.course_rating_women,
+        slope_rating_women=course.slope_rating_women
+    )
     db.add(db_course)
     db.commit()
     db.refresh(db_course)
 
-    # Voeg alle 9 of 18 holes toe
     for h in course.holes:
         db_hole = models.Hole(
             course_id=db_course.id,
@@ -56,21 +63,19 @@ def delete_course(
 
 @router.put("/{course_id}", response_model=schemas.Course)
 def update_course(course_id: int, course_update: schemas.CourseCreate, db: Session = Depends(get_db),current_admin: models.User = Depends(require_admin)):
-    # 1. Zoek de bestaande baan
     db_course = db.query(models.Course).filter(models.Course.id == course_id).first()
     if not db_course:
         raise HTTPException(status_code=404, detail="Golfbaan niet gevonden")
     
-    # 2. Update de hoofdgegevens
     db_course.name = course_update.name
     db_course.num_holes = course_update.num_holes
-    db_course.course_rating = course_update.course_rating
-    db_course.slope_rating = course_update.slope_rating
+    db_course.course_rating_men = course_update.course_rating_men
+    db_course.slope_rating_men = course_update.slope_rating_men
+    db_course.course_rating_women = course_update.course_rating_women
+    db_course.slope_rating_women = course_update.slope_rating_women
     
-    # 3. Verwijder de oude hole-specificaties van deze baan
     db.query(models.Hole).filter(models.Hole.course_id == course_id).delete()
     
-    # 4. Voeg de vernieuwde holes toe
     for h in course_update.holes:
         db_hole = models.Hole(
             course_id=course_id,

@@ -1,5 +1,4 @@
 <script setup>
-// Hier hoeft nu niks te staan, de router regelt de pagina's
 </script>
 
 <template>

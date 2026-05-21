@@ -1,5 +1,4 @@
 services:
-  # NIEUW: De PostgreSQL database service toegevoegd voor productie
   db:
     image: postgres:16
     environment:

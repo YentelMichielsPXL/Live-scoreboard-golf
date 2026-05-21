@@ -7,8 +7,8 @@
         <div class="d-flex align-items-center gap-2">
           <img src="../../public/logo_golf_hasselt.png" alt="Logo Hasselt" width="120" class="img-fluid" />
         </div>
-        <router-link to="/login" class="btn btn-outline-light btn-sm fw-bold px-3">
-          🔒 Admin Login
+        <router-link to="/login" class="btn btn-outline-dark btn-sm fw-bold px-3">
+          🔒
         </router-link>
       </div>
 
@@ -53,7 +53,7 @@
                     </div>
                   </div>
                   <div class="d-flex align-items-center gap-3 justify-content-between justify-content-md-end">
-                    <span class="badge bg-danger pulse-effect px-3 py-2 fw-bold" style="font-size: 0.75rem;">🔴 LIVE</span>
+                    <span class="badge bg-danger pulse-effect px-3 py-2 fw-bold d-flex align-items-center justify-content-center" style="font-size: 0.75rem; height:40px;min-width: 100px;">🔴 LIVE</span>
                     <router-link :to="`/leaderboard/${t.id}`" class="btn btn-success fw-bold px-4 py-2 shadow-sm text-uppercase" style="font-size: 0.85rem;">
                       Bekijk Scorebord
                     </router-link>
@@ -78,8 +78,10 @@
                       </div>
                     </div>
                     <div class="d-flex align-items-center gap-3 justify-content-between justify-content-md-end">
-                      <span class="badge bg-secondary text-dark px-3 py-2 fw-bold" style="font-size: 0.75rem;">🏁 VOLTOOID</span>
-                      <router-link :to="`/leaderboard/${t.id}`" class="btn btn-outline-secondary fw-bold px-4 py-2 text-uppercase" style="font-size: 0.85rem;">
+                      <span class="badge bg-secondary text-dark fw-bold d-flex align-items-center justify-content-center" style="font-size: 0.85rem; height: 40px; min-width: 100px;">
+                        VOLTOOID
+                      </span>
+                      <router-link :to="`/leaderboard/${t.id}`" class="btn btn-outline-secondary fw-bold px-4 text-uppercase d-flex align-items-center justify-content-center" style="font-size: 0.85rem; height: 40px;">
                         Bekijk Uitslag
                       </router-link>
                     </div>
@@ -102,9 +104,8 @@ import { ref, computed, onMounted } from 'vue'
 const tournaments = ref([])
 const loading = ref(true)
 
-// Vue berekent automatisch welke toernooien actief of afgerond zijn!
-const activeTournaments = computed(() => tournaments.value.filter(t => t.is_active))
-const completedTournaments = computed(() => tournaments.value.filter(t => !t.is_active))
+const activeTournaments = computed(() => tournaments.value.filter(t => t.is_active && t.is_public))
+const completedTournaments = computed(() => tournaments.value.filter(t => !t.is_active && t.is_public))
 
 const fetchTournaments = async () => {
   try {

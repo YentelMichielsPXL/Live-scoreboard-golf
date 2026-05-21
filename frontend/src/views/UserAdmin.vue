@@ -99,8 +99,8 @@ const newUser = ref({ username: '', password: '', role: 'scorer' })
 
 const fetchUsers = async () => {
   try {
-    const res = await fetch('http://localhost:8000/auth/allUsers', { // Aangepast naar je allUsers route
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    const res = await fetch(`http://${window.location.hostname}:8000/auth/allUsers`, { // Aangepast naar je allUsers route
+      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
     if (res.ok) {
       usersList.value = await res.json()
@@ -112,11 +112,11 @@ const fetchUsers = async () => {
 
 const handleCreateUser = async () => {
   try {
-    const res = await fetch('http://localhost:8000/auth/register', {
+    const res = await fetch(`http://${window.location.hostname}:8000/auth/register`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       },
       body: JSON.stringify(newUser.value)
     })
@@ -133,14 +133,13 @@ const handleCreateUser = async () => {
   }
 }
 
-// GECORRIGEERD: Verwerkt nu de live rol-wissel van jezelf
 const changeUserRole = async (userId, newRole) => {
   try {
-    const res = await fetch(`http://localhost:8000/auth/updateRole/${userId}`, {
+    const res = await fetch(`http://${window.location.hostname}:8000/auth/updateRole/${userId}`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       },
       body: JSON.stringify({ new_role: newRole }) // Matched met RoleUpdateBody
     })
@@ -151,7 +150,7 @@ const changeUserRole = async (userId, newRole) => {
       
       if (data.is_self) {
         // 1. Overschrijf direct je rol in de browser cache
-        localStorage.setItem('role', data.new_role)
+        sessionStorage.setItem('role', data.new_role)
         
         alert("🔄 Je hebt je eigen rol gewijzigd naar Scorer. Je wordt direct doorverwezen naar de scorer-omgeving.")
         
@@ -173,9 +172,9 @@ const changeUserRole = async (userId, newRole) => {
 const removeUser = async (userId) => {
   if (!confirm("⚠️ Weet je zeker dat je dit account permanent wilt wissen?")) return
   try {
-    const res = await fetch(`http://localhost:8000/users/${userId}`, {
+    const res = await fetch(`http://${window.location.hostname}:8000/users/${userId}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
     if (res.ok) {
       fetchUsers()

@@ -22,9 +22,10 @@
           <button @click="saveNewCutPercentage" class="btn btn-dark btn-sm fw-bold">Percentage Opslaan</button>
         </div>
 
-        <div class="d-flex gap-2 align-items-center mb-2">
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
           <button @click="calculateCutPreview" class="btn btn-outline-danger btn-sm fw-bold">1. Bereken Cut Preview</button>
           <button @click="applyCutDefinitive" class="btn btn-danger btn-sm fw-bold">2. Pas Cut Definitief Toe</button>
+          <button @click="removeCutDefinitive" class="btn btn-warning btn-sm fw-bold ms-auto text-dark">↩️ Cut Ongedaan Maken</button>
           <button v-if="cutPreview" @click="cutPreview = null" class="btn btn-link btn-sm text-secondary">Verberg Preview</button>
         </div>
 
@@ -61,16 +62,23 @@
           <div class="card-header bg-white font-weight-bold">Handmatig Deelnemer Toevoegen</div>
           <div class="card-body">
             <form @submit.prevent="submitForm" class="row g-3 align-items-end">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label">Voornaam</label>
                 <input v-model="newPlayer.first_name" type="text" class="form-control form-control-sm" required />
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label">Achternaam</label>
                 <input v-model="newPlayer.last_name" type="text" class="form-control form-control-sm" required />
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Exact Handicap</label>
+              <div class="col-md-2">
+                <label class="form-label">Geslacht</label>
+                <select v-model="newPlayer.gender" class="form-select form-select-sm" required>
+                  <option value="M">Man</option>
+                  <option value="F">Vrouw</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">HCP</label>
                 <input v-model.number="newPlayer.handicap" type="number" step="0.1" class="form-control form-control-sm" required />
               </div>
               <div class="col-12 text-end">
@@ -84,7 +92,7 @@
         <div class="card shadow-sm border-0 h-100 bg-light">
           <div class="card-header bg-transparent font-weight-bold">Deelnemers via CSV inlezen</div>
           <div class="card-body d-flex flex-column justify-content-between">
-            <small class="text-muted d-block mb-2">Vereiste kolommen: <strong>first_name, last_name, handicap</strong></small>
+            <small class="text-muted d-block mb-2">Vereiste kolommen: <strong>first_name, last_name, handicap, gender</strong> (M of V/F)</small>
             <div class="d-flex gap-2">
               <input type="file" ref="fileInput" @change="handleFileUpload" accept=".csv" class="form-control form-control-sm" />
               <button @click="submitCSV" :disabled="!csvFile" class="btn btn-sm btn-secondary">Uploaden</button>
@@ -105,60 +113,59 @@
       <span class="badge bg-warning text-dark px-3 py-2 fs-6 fw-bold">RONDE {{ activeRound }}</span>
     </div>
 
-
     <div class="d-block d-md-none mobile-wizard-container mb-4">
       <div class="card shadow-sm border-0">
         <div class="card-header bg-dark text-warning font-weight-bold">
-          📱 Mobiele Score Invoer Wizard
+          📱 Mobiele Score Invoer (Flight)
         </div>
-        <div class="card-body">
-          <label class="form-label fw-bold text-secondary small mb-1">Stap 1: Kies een Deelnemer</label>
-          <select v-model="selectedPlayerId" class="form-select form-select-lg mb-3 border-2 border-success fw-bold">
-            <option :value="null">-- Tik hier om speler te kiezen --</option>
-            <option v-for="player in players" :key="player.id" :value="player.id">
-              🏌️ {{ player.first_name }} {{ player.last_name }} (Hcp: {{ player.handicap }})
-            </option>
-          </select>
+        <div class="card-body p-2 p-sm-3">
+          <label class="form-label fw-bold text-secondary small mb-1">Stap 1: Stel je flight samen (max 3)</label>
+          
+          <div v-for="(id, index) in flightIds" :key="index" class="mb-2">
+            <select v-model="flightIds[index]" class="form-select border-2 border-success fw-bold">
+              <option :value="null">-- Kies Speler {{ index + 1 }} --</option>
+              <option v-for="player in players" :key="player.id" :value="player.id">
+                {{ player.gender === 'F' ? '👩‍🦰' : '🏌️' }} {{ player.first_name }} {{ player.last_name }} (Hcp: {{ player.handicap }})
+              </option>
+            </select>
+          </div>
 
-          <div v-if="selectedPlayer" class="animate-fade-in border-top pt-3 mt-2">
-            <div class="p-2 mb-3 bg-light rounded d-flex justify-content-between align-items-center border">
-              <div>
-                <strong class="text-dark fs-5 d-block">{{ selectedPlayer.first_name }} {{ selectedPlayer.last_name }}</strong>
-                <small class="text-muted">Status: {{ selectedPlayer.status }}</small>
-              </div>
-              <button v-if="selectedPlayer" @click="selectedPlayerId = null" class="btn btn-xs btn-outline-secondary py-1">Sluiten</button>
-            </div>
-
-            <div v-if="selectedPlayer.status !== 'ACTIVE'" class="alert alert-warning text-center fw-bold small">
-              ⚠️ Deze speler staat gemarkeerd als '{{ selectedPlayer.status }}' en is geblokkeerd.
-            </div>
-
-            <div v-else>
-              <label class="form-label fw-bold text-secondary small mb-2">Stap 2: Vul scores in voor Ronde {{ activeRound }}</label>
-              
-              <div class="row g-2">
-                <div v-for="h in 18" :key="h" class="col-4">
-                  <div class="card text-center border-secondary shadow-xs">
-                    <div class="card-header py-1 bg-dark text-white font-numeric small fw-bold">
-                      Hole {{ h }}
-                    </div>
-                    <div class="card-body p-2 bg-white">
+          <div v-if="selectedFlight.some(p => p !== null)" class="animate-fade-in border-top pt-3 mt-2">
+            <label class="form-label fw-bold text-secondary small mb-2">Stap 2: Vul scores in voor Ronde {{ activeRound }}</label>
+            
+            <div class="table-responsive">
+              <table class="table table-bordered text-center align-middle">
+                <thead class="table-dark">
+                  <tr>
+                    <th style="width: 25%;">Hole</th>
+                    <th v-for="(p, index) in selectedFlight" :key="'head'+index" v-show="p" style="width: 25%;">
+                      <small>{{ p?.first_name }} {{ p?.last_name[0] }}</small>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="h in 18" :key="'hole'+h">
+                    <td class="bg-light fw-bold font-numeric p-1">Hole {{ h }}</td>
+                    <td v-for="(p, index) in selectedFlight" :key="'score'+index" v-show="p" class="p-1">
                       <input 
                         type="number" 
                         inputmode="numeric" 
                         pattern="[0-9]*" 
                         min="1" max="15" 
-                        class="form-control form-control-lg text-center fw-black border-2"
-                        style="font-size: 1.4rem; padding: 4px 0;"
-                        :value="getScore(selectedPlayer, activeRound, h)"
-                        @change="saveHoleScore(selectedPlayer.id, h, $event.target.value)"
+                        class="form-control text-center fw-black border-2 mx-auto"
+                        style="font-size: 1.2rem; padding: 4px 0; max-width: 60px;"
+                        :value="p ? getScore(p, activeRound, h) : ''"
+                        @change="p ? saveHoleScore(p.id, h, $event.target.value) : null"
+                        :disabled="p?.status !== 'ACTIVE'"
                         @focus="$event.target.select()"
                       />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+            
+            <button @click="clearFlight" class="btn btn-outline-secondary w-100 mt-2">Flight Sluiten / Nieuwe Kiezen</button>
 
           </div>
         </div>
@@ -180,12 +187,12 @@
             <tr v-for="player in players" :key="player.id" :class="{'table-danger text-muted opacity-50': player.status !== 'ACTIVE'}">
               <td class="text-start ps-3 table-light">
                 <div class="fw-bold">
-                  {{ player.first_name }} {{ player.last_name }}
+                  {{ player.gender === 'F' ? '👩‍🦰' : '🏌️' }} {{ player.first_name }} {{ player.last_name }}
                   <span v-if="player.status === 'DQ'" class="badge bg-danger ms-1">DQ</span>
                   <span v-if="player.status === 'WD'" class="badge bg-warning text-dark ms-1">WD</span>
                   <span v-if="player.status === 'CUT'" class="badge bg-secondary ms-1 text-dark">CUT</span>
                 </div>
-                <small class="text-muted">Hcp: {{ player.handicap }}</small>
+                <small class="text-muted">Hcp: {{ player.handicap }} | {{ player.gender }}</small>
               </td>
               <td v-if="userRole === 'admin'" class="p-2">
                 <div class="d-flex gap-1 align-items-center justify-content-center">
@@ -219,32 +226,44 @@
 </template>
 
 <script setup>
-import { ref, shallowRef, onMounted, computed } from 'vue'
+import { ref, shallowRef, onMounted, computed, watch } from 'vue'
 import { usePlayers } from '../composables/usePlayers'
 
-const userRole = ref(localStorage.getItem('role') || 'scorer')
+const userRole = ref(sessionStorage.getItem('role') || 'scorer')
 const activeRound = ref(1)
 const tournamentDetails = ref({ id: null, num_rounds: 1, has_cut: false, cut_percentage: 75 })
 const cutPreview = ref(null)
 
-// Invoervelden & Selecties
-const newPlayer = ref({ first_name: '', last_name: '', handicap: null })
+const newPlayer = ref({ first_name: '', last_name: '', handicap: null, gender: 'M' })
 const csvFile = ref(null)
-const selectedPlayerId = ref(null)
 
+
+const savedFlight = sessionStorage.getItem('active_flight')
+const flightIds = ref(savedFlight ? JSON.parse(savedFlight) : [null, null, null])
+
+
+watch(flightIds, (newFlight) => {
+  sessionStorage.setItem('active_flight', JSON.stringify(newFlight))
+}, { deep: true })
 const playerComposable = shallowRef(null)
 
-// Spelerslijst computed tracker
 const players = computed(() => {
-  return playerComposable.value ? playerComposable.value.players.value : []
+  const rawPlayers = playerComposable.value ? playerComposable.value.players.value : []
+  return [...rawPlayers].sort((a, b) => {
+    const hcpA = a.handicap !== null ? a.handicap : 99
+    const hcpB = b.handicap !== null ? b.handicap : 99
+    return hcpA - hcpB
+  })
 })
 
-// Berekent live welke speler momenteel is aangeklikt in de gsm-lijst
-const selectedPlayer = computed(() => {
-  return players.value?.find(p => p.id === selectedPlayerId.value)
-})
+const clearFlight = () => {
+  flightIds.value = [null, null, null]
+  sessionStorage.removeItem('active_flight')
+}
 
-// GECORRIGEERD: Vanaf hier zijn alle 'localhost' links vervangen door ${window.location.hostname}
+const selectedFlight = computed(() => {
+  return flightIds.value.map(id => players.value?.find(p => p.id === id) || null)
+})
 
 const fetchActiveTournamentAndPlayers = async () => {
   const res = await fetch(`http://${window.location.hostname}:8000/tournaments/active/metadata`)
@@ -258,7 +277,7 @@ const fetchActiveTournamentAndPlayers = async () => {
 const changePlayerStatus = async (playerId, newStatus) => {
   const res = await fetch(`http://${window.location.hostname}:8000/tournaments/players/${playerId}/status`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
     body: JSON.stringify({ status: newStatus })
   })
   if (res.ok) {
@@ -293,6 +312,19 @@ const applyCutDefinitive = async () => {
   }
 }
 
+const removeCutDefinitive = async () => {
+  if (confirm("Weet je zeker dat je de toegepaste cut ongedaan wilt maken? Alle spelers die 'CUT' als status hadden, worden weer 'ACTIVE'.")) {
+    const res = await fetch(`http://${window.location.hostname}:8000/tournaments/${tournamentDetails.value.id}/remove-cut`, { 
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+    })
+    if (res.ok) { 
+      cutPreview.value = null
+      playerComposable.value?.fetchPlayers()
+    }
+  }
+}
+
 const getScore = (player, roundNum, holeNum) => {
   const match = player.scores?.find(s => s.round_number === roundNum && s.hole_number === holeNum)
   return match ? match.strokes : ''
@@ -303,7 +335,7 @@ const saveHoleScore = async (playerId, holeNum, strokes) => {
   if (isNaN(strokeCount) || strokeCount < 0) return
   const res = await fetch(`http://${window.location.hostname}:8000/scores/player/${playerId}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
     body: JSON.stringify({ hole_number: holeNum, strokes: strokeCount, round_number: activeRound.value })
   })
   if (res.ok) {
@@ -317,9 +349,10 @@ const submitForm = async () => {
   const success = await playerComposable.value.addPlayer({ 
     first_name: newPlayer.value.first_name, 
     last_name: newPlayer.value.last_name, 
-    handicap: newPlayer.value.handicap 
+    handicap: newPlayer.value.handicap,
+    gender: newPlayer.value.gender
   })
-  if (success) newPlayer.value = { first_name: '', last_name: '', handicap: null }
+  if (success) newPlayer.value = { first_name: '', last_name: '', handicap: null, gender: 'M' }
 }
 
 const handleFileUpload = (event) => { csvFile.value = event.target.files[0] }
@@ -333,6 +366,7 @@ const submitCSV = async () => {
 const removePlayer = async (id) => { 
   if (confirm("Speler wissen?") && playerComposable.value) {
     await playerComposable.value.deletePlayer(id)
+    flightIds.value = flightIds.value.map(fid => fid === id ? null : fid) 
   } 
 }
 
@@ -340,6 +374,7 @@ onMounted(() => {
   fetchActiveTournamentAndPlayers()
 })
 </script>
+
 <style scoped>
 .animate-fade-in { animation: fadeIn 0.25s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }

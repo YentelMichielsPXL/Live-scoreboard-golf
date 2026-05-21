@@ -4,8 +4,11 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
 export default defineConfig({
+  server:{
+    host: true,
+    allowedHosts: ['group6-pxl.freemyip.com']
+  },
   plugins: [
     vue(),
     vueDevTools()

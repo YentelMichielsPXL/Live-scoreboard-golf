@@ -15,8 +15,11 @@ class Course(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
     num_holes = Column(Integer, default=18)
-    course_rating = Column(Float, nullable=False, default=72.0)
-    slope_rating = Column(Integer, nullable=False, default=113)
+    
+    course_rating_men = Column(Float, nullable=False, default=72.0)
+    slope_rating_men = Column(Integer, nullable=False, default=113)
+    course_rating_women = Column(Float, nullable=False, default=72.0)
+    slope_rating_women = Column(Integer, nullable=False, default=113)
 
     holes = relationship("Hole", back_populates="course", cascade="all, delete-orphan")
     tournaments = relationship("Tournament", back_populates="course")
@@ -41,6 +44,7 @@ class Tournament(Base):
     has_cut = Column(Boolean, default=False)
     cut_percentage = Column(Integer, nullable=True)
     num_rounds = Column(Integer, default=1, nullable=False)
+    is_public = Column(Boolean, default=False) # NIEUW: Standaard verborgen
 
     course = relationship("Course", back_populates="tournaments")
     players = relationship("Player", back_populates="tournament", cascade="all, delete-orphan")
@@ -51,10 +55,10 @@ class Player(Base):
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     handicap = Column(Float, nullable=True)
+    gender = Column(String, nullable=False, default="M")
     tournament_id = Column(Integer, ForeignKey("tournaments.id", ondelete="CASCADE"), nullable=False)
     status = Column(String, nullable=False, default="ACTIVE")
     
-    # GECORRIGEERD: back_populates verwijst nu correct naar 'players' op de Tournament mapping
     tournament = relationship("Tournament", back_populates="players")
     scores = relationship("Score", back_populates="player", cascade="all, delete-orphan")
 

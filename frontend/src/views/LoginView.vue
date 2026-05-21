@@ -1,10 +1,14 @@
 <template>
-  <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 80vh;">
+  <ToastNotification ref="Toast" />
+  <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh;">
+    <router-link to="/" class="mb-4">
+      <img src="/logo_golf_hasselt.png" alt="Logo Hasselt" width="150" class="logo" />
+    </router-link>
     <div>
       <h2>Golfclub Hasselt</h2>
     </div>
     <div class="card shadow border-0 p-4 bg-card" style="width: 100%; max-width: 400px;">
-      <h3 class="text-center text-success mb-4">🔐 Golf App Login</h3>
+      <h3 class="text-center text-white mb-4">🔐 Golf App Login</h3>
       <form @submit.prevent="handleLogin">
         <div class="mb-3">
           <label class="form-label text-white">Gebruikersnaam</label>
@@ -23,10 +27,12 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import ToastNotification from '@/components/ToastNotification.vue'
 
 const username = ref('')
 const password = ref('')
 const router = useRouter()
+const Toast = ref(null)
 
 const handleLogin = async () => {
   const res = await fetch(`http://${window.location.hostname}:8000/auth/login`, {
@@ -36,18 +42,27 @@ const handleLogin = async () => {
   })
   if (res.ok) {
     const user = await res.json()
-    localStorage.setItem('token', user.token)
-    localStorage.setItem('role', user.role)
-    localStorage.setItem('username', user.username)
+    sessionStorage.setItem('token', user.token)
+    sessionStorage.setItem('role', user.role)
+    sessionStorage.setItem('username', user.username)
     router.push('/admin/tournaments')
   } else {
-    alert("Inloggen mislukt. Controleer uw gegevens.")
+    console.log('Login failed:',  res.statusText)
+    Toast.value.show('Fout bij inloggen. Controleer je gegevens en probeer het opnieuw.', 'danger')
   }
 }
 </script>
 
 <style scoped>
 .bg-card{
-  background-color: rgb(29, 27, 185);
+  background-color: rgb(13,13,170);
 }
+.logo{
+  border: 3px solid black;
+  border-radius: 15%;
+  background-color: rgb(13, 13, 170);
+  padding: 10px;
+  
+}
+
 </style>

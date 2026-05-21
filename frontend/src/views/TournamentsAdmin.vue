@@ -7,7 +7,6 @@
       <h2 class="mb-4 text-success border-bottom pb-2">Scores Beheren</h2>
     </div>
 
-    <!-- Toernooi Aanmaken (Admin Only) -->
     <div v-if="userRole === 'admin'" class="card shadow-sm mb-5 border-0">
       <div class="card-header bg-white font-weight-bold">Nieuw Toernooi Aanmaken</div>
       <div class="card-body">
@@ -68,15 +67,20 @@
       </div>
     </div>
 
-    <!-- Toernooien Overzicht Kaarten -->
     <div class="row g-4">
       <div v-for="t in tournaments" :key="t.id" class="col-md-6">
-        <div class="card shadow-sm border-0 h-100 border-start border-success border-4">
+        <div class="card shadow-sm border-0 h-100 border-start border-4" :class="t.is_public ? 'border-success' : 'border-secondary'">
           <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex justify-content-between align-items-start mb-2">
               <h5 class="card-title fw-bold text-dark">{{ t.name }}</h5>
-              <button v-if="userRole === 'admin'" @click="deleteTournament(t.id)" class="btn btn-sm btn-outline-danger">Verwijderen</button>
+              <div class="d-flex gap-2">
+                <button v-if="userRole === 'admin'" @click="toggleVisibility(t)" class="btn btn-sm fw-bold shadow-sm" :class="t.is_public ? 'btn-success text-white' : 'btn-outline-secondary'">
+                  {{ t.is_public ? '👁️ Zichtbaar' : '🙈 Verborgen' }}
+                </button>
+                <button v-if="userRole === 'admin'" @click="deleteTournament(t.id)" class="btn btn-sm btn-outline-danger shadow-sm">Verwijderen</button>
+              </div>
             </div>
+            
             <p class="text-muted mb-2">📅 {{ t.date || 'Geen datum' }} | 📍 {{ t.course?.name || 'Onbekende Baan' }}</p>
             
             <div class="mb-3">
@@ -87,9 +91,9 @@
               <span v-if="t.has_cut" class="badge bg-danger ms-2">Cut: Top {{ t.cut_percentage }}%</span>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
               <span class="text-secondary small">Spelers geregistreerd: <strong>{{ t.players?.length || 0 }}</strong></span>
-              <router-link :to="`/admin/tournaments/${t.id}/players`" class="btn btn-sm btn-success">
+              <router-link :to="`/admin/tournaments/${t.id}/players`" class="btn btn-sm btn-dark fw-bold">
                 👥 Spelers & Scores Beheren
               </router-link>
             </div>
@@ -105,7 +109,8 @@ import { ref, onMounted } from 'vue'
 
 const tournaments = ref([])
 const availableCourses = ref([])
-const userRole = ref(localStorage.getItem('role') || 'scorer')
+const userRole = ref(sessionStorage.getItem('role') || 'scorer')
+
 const API_URL = `http://${window.location.hostname}:8000/tournaments/`
 const COURSES_API_URL = `http://${window.location.hostname}:8000/courses/`
 
@@ -116,7 +121,8 @@ const newTournament = ref({
   format: 'stableford',
   has_cut: false,
   cut_percentage: 75,
-  num_rounds: 1
+  num_rounds: 1,
+  is_public: false
 })
 
 const fetchData = async () => {
@@ -132,27 +138,45 @@ const createTournament = async () => {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       },
       body: JSON.stringify(newTournament.value)
     })
     if (res.ok) {
-      newTournament.value = { name: '', date: '', course_id: '', format: 'stableford', has_cut: false, cut_percentage: 75, num_rounds: 1 }
+      newTournament.value = { name: '', date: '', course_id: '', format: 'stableford', has_cut: false, cut_percentage: 75, num_rounds: 1, is_public: false }
       fetchData()
+    } else {
+      alert("Fout bij het aanmaken. Ben je wel admin?")
     }
   } catch (error) {
     console.error("Fout bij toevoegen toernooi:", error)
   }
 }
 
+
+const toggleVisibility = async (t) => {
+  try {
+    const res = await fetch(`${API_URL}${t.id}/visibility`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ is_public: !t.is_public })
+    })
+    if (res.ok) fetchData()
+  } catch (error) {
+    console.error("Fout bij aanpassen zichtbaarheid:", error)
+  }
+}
+
 const deleteTournament = async (id) => {
   if(!confirm("Weet je zeker dat je dit toernooi wilt verwijderen?")) return
   try {
-    // GECORRIGEERD: Stuurt ook hier de Admin token mee ter verificatie
     const res = await fetch(`${API_URL}${id}`, { 
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     })
     if (res.ok) fetchData()

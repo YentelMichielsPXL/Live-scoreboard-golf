@@ -5,7 +5,6 @@ from routers import players, tournaments, courses, auth, scores
 import models
 import hashlib
 
-# Maak de tabellen aan in Postgres
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -33,7 +32,6 @@ try:
 finally:
     db.close()
 
-# Koppel alle routers
 app.include_router(auth.router)
 app.include_router(tournaments.router)
 app.include_router(players.router)

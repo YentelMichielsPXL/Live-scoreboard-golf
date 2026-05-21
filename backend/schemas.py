@@ -21,12 +21,12 @@ class UserResponse(BaseModel):
 class ScoreInput(BaseModel):
     hole_number: int
     strokes: int
-    round_number: int = 1 # NIEUW
+    round_number: int = 1
 
 class ScoreResponse(BaseModel):
     hole_number: int
     strokes: int
-    round_number: int # NIEUW
+    round_number: int
     class Config:
         from_attributes = True
 
@@ -47,8 +47,10 @@ class Hole(HoleBase):
 class CourseBase(BaseModel):
     name: str
     num_holes: int
-    course_rating: float
-    slope_rating: int
+    course_rating_men: float
+    slope_rating_men: int
+    course_rating_women: float
+    slope_rating_women: int
 
 class CourseCreate(CourseBase):
     holes: List[HoleCreate]
@@ -64,6 +66,7 @@ class PlayerBase(BaseModel):
     last_name: str
     handicap: Optional[float] = None
     status: Optional[str] = "ACTIVE"
+    gender: Optional[str] = "M"
 
 class PlayerCreate(PlayerBase):
     pass
@@ -82,7 +85,8 @@ class TournamentBase(BaseModel):
     format: str
     has_cut: bool = False
     cut_percentage: Optional[int] = None
-    num_rounds: int = 1 # NIEUW
+    num_rounds: int = 1
+    is_public: bool = False # NIEUW
 
 class TournamentCreate(TournamentBase):
     pass
