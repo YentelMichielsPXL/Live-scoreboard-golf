@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 export function useCourses() {
   const courses = ref([])
-  const API_URL = `https://${window.location.hostname}:8000/courses/`
+  const API_URL = '/courses/'
 
   const fetchCourses = async () => {
     try {

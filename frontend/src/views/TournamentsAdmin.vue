@@ -111,8 +111,8 @@ const tournaments = ref([])
 const availableCourses = ref([])
 const userRole = ref(sessionStorage.getItem('role') || 'scorer')
 
-const API_URL = `https://${window.location.hostname}:8000/tournaments/`
-const COURSES_API_URL = `https://${window.location.hostname}:8000/courses/`
+const API_URL = '/tournaments/'
+const COURSES_API_URL = '/courses/'
 
 const newTournament = ref({
   name: '',

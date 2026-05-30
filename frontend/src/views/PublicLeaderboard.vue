@@ -455,7 +455,7 @@ const getRoundToPar = (scoresObj) => {
 const fetchLeaderboard = async () => {
   try {
     const res = await fetch(
-      `https://${window.location.hostname}:8000/tournaments/${tournamentId}/leaderboard`,
+      '/tournaments/${tournamentId}/leaderboard',
     );
     if (res.ok) {
       leaderboardData.value = await res.json();

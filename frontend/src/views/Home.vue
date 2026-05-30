@@ -109,7 +109,7 @@ const completedTournaments = computed(() => tournaments.value.filter(t => !t.is_
 
 const fetchTournaments = async () => {
   try {
-    const res = await fetch(`https://${window.location.hostname}:8000/tournaments/`)
+    const res = await fetch('tournaments/'')
     if (res.ok) {
       tournaments.value = await res.json()
     }
