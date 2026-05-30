@@ -3,7 +3,7 @@ import { ref } from 'vue'
 export function usePlayers(tournamentId) {
   const players = ref([])
   // De URL is nu dynamisch gekoppeld aan het toernooi ID
-  const API_URL = '/api/tournaments/${tournamentId}/players/'
+  const API_URL = `/api/tournaments/${tournamentId}/players/`
 
   const fetchPlayers = async () => {
     try {
