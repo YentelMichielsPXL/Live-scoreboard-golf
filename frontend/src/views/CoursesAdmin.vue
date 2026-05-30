@@ -24,14 +24,14 @@
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label fw-bold text-primary">Mannen 60 (CR / SR)</label>
+              <label class="form-label fw-bold text-primary">Mannen (CR / SR)</label>
               <div class="input-group">
                 <input v-model.number="newCourse.course_rating_men" type="number" step="0.1" class="form-control" placeholder="CR" required />
                 <input v-model.number="newCourse.slope_rating_men" type="number" min="55" max="155" class="form-control" placeholder="SR" required />
               </div>
             </div>
             <div class="col-md-3">
-              <label class="form-label fw-bold text-danger">Vrouwen 51 (CR / SR)</label>
+              <label class="form-label fw-bold text-danger">Vrouwen (CR / SR)</label>
               <div class="input-group">
                 <input v-model.number="newCourse.course_rating_women" type="number" step="0.1" class="form-control" placeholder="CR" required />
                 <input v-model.number="newCourse.slope_rating_women" type="number" min="55" max="155" class="form-control" placeholder="SR" required />

@@ -54,7 +54,7 @@
                 :class="
                   activeTab === 'M'
                     ? 'btn-primary text-white'
-                    : 'btn-outline-light text-muted'
+                    : 'btn-outline-light text-white-50'
                 "
               >
                 MANNEN
@@ -65,7 +65,7 @@
                 :class="
                   activeTab === 'F'
                     ? 'btn-primary text-white'
-                    : 'btn-outline-light text-muted'
+                    : 'btn-outline-light text-white-50'
                 "
               >
                 VROUWEN
@@ -81,8 +81,8 @@
               "
               title="Automatisch wisselen"
             >
-              <span v-if="isAutoSwitching">⏱️ AAN</span>
-              <span v-else>⏱️ UIT</span>
+              <span v-if="isAutoSwitching">⏱️</span>
+              <span v-else>⏱️</span>
             </button>
           </div>
 
@@ -288,7 +288,7 @@
                 </td>
 
                 <td
-                  class="fs-5 text-muted-white font-numeric fw-bold bg-dark-gray-rows py-1"
+                  class="fs-5 text-white font-numeric fw-bold bg-dark-gray-rows py-1"
                 >
                   <div>{{ sumRound(row.round_scores[1]) }}</div>
                   <div
@@ -302,7 +302,7 @@
 
                 <td
                   v-if="leaderboardData.num_rounds > 1"
-                  class="fs-5 text-muted-white font-numeric fw-bold bg-dark-gray-rows py-1"
+                  class="fs-5 text-white-50 font-numeric fw-bold bg-dark-gray-rows py-1"
                 >
                   <div>{{ sumRound(row.round_scores[2]) }}</div>
                   <div
@@ -455,7 +455,7 @@ const getRoundToPar = (scoresObj) => {
 const fetchLeaderboard = async () => {
   try {
     const res = await fetch(
-      `http://${window.location.hostname}:8000/tournaments/${tournamentId}/leaderboard`,
+      `https://${window.location.hostname}:8000/tournaments/${tournamentId}/leaderboard`,
     );
     if (res.ok) {
       leaderboardData.value = await res.json();
@@ -577,193 +577,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-:global(html),
-:global(body) {
-  background-color: #0c0e12 !important;
-  overflow-x: hidden;
-}
-.img {
-  margin-bottom: 5px;
-}
-.fw-black {
-  font-weight: 900;
-}
-.leaderboard-wrapper {
-  background-color: #0b2516;
-  overflow-x: hidden;
-}
-.scoreboard-title {
-  color: #ffffff;
-  font-family: "Arial Black", sans-serif;
-  font-weight: 900;
-}
-.font-numeric {
-  font-family: "Courier New", Courier, monospace;
-}
-.bg-black-card {
-  background-color: #12161f;
-}
-.style-small {
-  font-size: 0.72rem;
-}
-.text-muted-white {
-  color: #d1d5db;
-}
-.text-muted-dash {
-  color: #4b5563;
-}
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.table-custom {
-  --bs-table-bg: #0b2516;
-  background-color: #0b2516 !important;
-  color: #ffffff !important;
-}
-.table-custom th {
-  background-color: #0b2516 !important;
-  color: #ffc107 !important;
-  padding: 6px 4px;
-  font-size: 0.8rem;
-  border-bottom: 2px solid #0c0e12 !important;
-}
-.hole-header {
-  width: 38px;
-  min-width: 38px;
-  font-size: 0.7rem;
-  line-height: 1.2;
-}
-.bg-dark-gray {
-  background-color: #2d3545 !important;
-}
-.bg-dark-gray-rows {
-  background-color: #0b2516 !important;
-}
-.border-inline-dark {
-  border-left: 1px solid #1a202c;
-  border-right: 1px solid #1a202c;
-}
-
-.leaderboard-row {
-  border-bottom: 1px solid #353536 !important;
-}
-.cut-line-row {
-  border-bottom: none !important;
-  background: transparent !important;
-}
-
-.total-score-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 76px;
-  height: 34px;
-  font-weight: 900;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-/* Animatie en weergave fixes */
-.leaderboard-flip-move {
-  transition: transform 2s cubic-bezier(0.55, 0, 0.1, 1);
-}
-.leaderboard-row {
-  transition:
-    background-color 0.2s ease,
-    transform 2s cubic-bezier(0.55, 0, 0.1, 1);
-}
-.leaderboard-flip-leave-active {
-  display: none;
-}
-
-.score-birdie {
-  background-color: #ff3b30;
-  color: #ffffff;
-  border-radius: 50%;
-  display: inline-block;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
-  text-align: center;
-  font-size: 0.85rem;
-}
-.score-eagle {
-  background-color: #ff9500;
-  color: #000000;
-  border-radius: 50%;
-  display: inline-block;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
-  text-align: center;
-  box-shadow: 0 0 0 2px #ff9500;
-  font-weight: 900;
-  font-size: 0.85rem;
-}
-.score-bogey {
-  background-color: #007aff;
-  color: #ffffff;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  text-align: center;
-  border-radius: 2px;
-  font-size: 0.85rem;
-}
-.score-double {
-  background-color: #5856d6;
-  color: #ffffff;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  text-align: center;
-  border-radius: 2px;
-  border: 1px solid #ffffff;
-  font-size: 0.85rem;
-}
-.score-par {
-  color: #ffffff;
-  display: inline-block;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
-  font-size: 0.9rem;
-}
-
-.pulse-effect {
-  animation: pulse 1.5s infinite;
-}
-.badge-pulse {
-  animation: badgelight 2.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.4;
-  }
-}
-@keyframes badgelight {
-  0% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 12px rgba(220, 53, 69, 0.8);
-  }
-  100% {
-    opacity: 0.8;
-  }
-}
-</style>
+<style src="../assets/styles/leaderboard.css"></style>

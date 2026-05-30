@@ -99,7 +99,7 @@ const newUser = ref({ username: '', password: '', role: 'scorer' })
 
 const fetchUsers = async () => {
   try {
-    const res = await fetch(`http://${window.location.hostname}:8000/auth/allUsers`, { // Aangepast naar je allUsers route
+    const res = await fetch(`https://${window.location.hostname}:8000/auth/allUsers`, { // Aangepast naar je allUsers route
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
     if (res.ok) {
@@ -112,7 +112,7 @@ const fetchUsers = async () => {
 
 const handleCreateUser = async () => {
   try {
-    const res = await fetch(`http://${window.location.hostname}:8000/auth/register`, {
+    const res = await fetch(`https://${window.location.hostname}:8000/auth/register`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ const handleCreateUser = async () => {
 
 const changeUserRole = async (userId, newRole) => {
   try {
-    const res = await fetch(`http://${window.location.hostname}:8000/auth/updateRole/${userId}`, {
+    const res = await fetch(`https://${window.location.hostname}:8000/auth/updateRole/${userId}`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ const changeUserRole = async (userId, newRole) => {
 const removeUser = async (userId) => {
   if (!confirm("⚠️ Weet je zeker dat je dit account permanent wilt wissen?")) return
   try {
-    const res = await fetch(`http://${window.location.hostname}:8000/users/${userId}`, {
+    const res = await fetch(`https://${window.location.hostname}:8000/users/${userId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
