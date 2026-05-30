@@ -3,7 +3,7 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ThisIsAnHardPassw0rd
       POSTGRES_DB: golfdb
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
@@ -22,7 +22,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/golfdb
+      - DATABASE_URL=postgresql://user:ThisIsAnHardPassw0rd@db:5432/golfdb
     
     depends_on:
       db:
@@ -34,7 +34,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
     ports:
-      - "80:80"
+      - "8080:80"
     restart: always
 
 volumes:
