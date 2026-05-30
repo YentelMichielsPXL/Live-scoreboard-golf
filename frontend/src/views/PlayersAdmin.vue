@@ -333,7 +333,7 @@ const getScore = (player, roundNum, holeNum) => {
 const saveHoleScore = async (playerId, holeNum, strokes) => {
   const strokeCount = strokes === '' ? 0 : parseInt(strokes)
   if (isNaN(strokeCount) || strokeCount < 0) return
-  const res = await fetch('/scores/player/${playerId}'', {
+  const res = await fetch('/scores/player/${playerId}', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
     body: JSON.stringify({ hole_number: holeNum, strokes: strokeCount, round_number: activeRound.value })
