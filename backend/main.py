@@ -31,8 +31,8 @@ try:
 finally:
     db.close()
 
-app.include_router(auth.router)
-app.include_router(tournaments.router)
-app.include_router(players.router)
-app.include_router(courses.router)
-app.include_router(scores.router)
+app.include_router(auth.router, prefix="/api")
+app.include_router(tournaments.router, prefix="/api")
+app.include_router(players.router, prefix="/api")
+app.include_router(courses.router, prefix="/api")
+app.include_router(scores.router, prefix="/api")
