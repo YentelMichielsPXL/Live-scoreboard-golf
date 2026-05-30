@@ -1,0 +1,27 @@
+/* ============================================================
+   global.css
+   Applies to the ENTIRE app (no scoping).
+   Loaded via App.vue <style src="...">.
+   ============================================================ */
+
+/* --- Mobile: hide the sidebar on screens narrower than a tablet --- */
+@media (max-width: 768px) {
+  #sidebar,
+  .sidebar,
+  aside,
+  .bg-dark.text-white.p-3 {
+    display: none !important;
+  }
+
+  /* Let the main content fill 100 % width once the sidebar is gone */
+  main,
+  .main-content,
+  .content,
+  .col-md-9 {
+    margin-left: 0 !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}

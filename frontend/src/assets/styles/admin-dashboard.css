@@ -1,0 +1,24 @@
+/* ============================================================
+   admin-dashboard.css  —  Scoped styles for views/AdminDashboard.vue
+   ============================================================ */
+
+/* --- Sidebar background colour --- */
+.bg-blue {
+  background-color: rgb(43, 40, 223);
+}
+
+/* --- Active nav-link highlight --- */
+.selected {
+  background-color: whitesmoke;
+  color: black !important;
+}
+
+/* --- Mobile menu slide-in animation --- */
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}

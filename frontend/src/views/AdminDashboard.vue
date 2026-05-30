@@ -115,22 +115,4 @@ const logout = () => {
 }
 </script>
 
-<style scoped>
-.bg-blue{
-  background-color: rgb(43, 40, 223);
-}
-
-.selected{
-  background-color: whitesmoke;
-  color: black !important;
-}
-
-.animate-fade-in { 
-  animation: fadeIn 0.2s ease-out; 
-}
-
-@keyframes fadeIn { 
-  from { opacity: 0; transform: translateY(-5px); } 
-  to { opacity: 1; transform: translateY(0); } 
-}
-</style>
+<style src="../assets/styles/admin-dashboard.css"></style>
