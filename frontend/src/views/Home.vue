@@ -112,10 +112,9 @@ const loading = ref(true)
 const activeTournaments = computed(() => tournaments.value.filter(t => t.is_active && t.is_public))
 const completedTournaments = computed(() => tournaments.value.filter(t => !t.is_active && t.is_public))
 
-// NIEUWE FUNCTIE:
 const openLeaderboard = (id) => {
-  store.setTournamentId(id)       // Sla ID op in de store
-  router.push('/leaderboard')     // Navigeer naar de schone URL
+  store.setTournamentId(id)
+  router.push('/leaderboard')     
 }
 
 const fetchTournaments = async () => {
