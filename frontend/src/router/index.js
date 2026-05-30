@@ -11,7 +11,7 @@ import Home from '@/views/Home.vue'
 const routes = [
   { path: '/', component: Home },
   { path: '/login', component: LoginView },
-  { path: '/leaderboard/:tournament_id', component: PublicLeaderboard },
+  { path: '/leaderboard/', component: PublicLeaderboard },
   { 
     path: '/admin', 
     component: AdminDashboard,

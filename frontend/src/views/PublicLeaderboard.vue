@@ -330,10 +330,18 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+import { useTournamentStore } from "@/stores/tournamentStore";
 
-const route = useRoute();
-const tournamentId = route.params.tournament_id || route.params.id || 1;
+const router = useRouter();
+const store = useTournamentStore();
+
+if (!store.selectedTournamentId) {
+  router.push('/');
+}
+
+const tournamentId = store.selectedTournamentId;
+
 const leaderboardData = ref({
   tournament_name: "",
   num_rounds: 1,

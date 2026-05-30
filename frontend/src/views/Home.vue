@@ -54,9 +54,9 @@
                   </div>
                   <div class="d-flex align-items-center gap-3 justify-content-between justify-content-md-end">
                     <span class="badge bg-danger pulse-effect px-3 py-2 fw-bold d-flex align-items-center justify-content-center" style="font-size: 0.75rem; height:40px;min-width: 100px;">🔴 LIVE</span>
-                    <router-link :to="`/leaderboard/${t.id}`" class="btn btn-success fw-bold px-4 py-2 shadow-sm text-uppercase" style="font-size: 0.85rem;">
+                    <button @click="openLeaderboard(t.id)" class="btn btn-success fw-bold px-4 py-2 shadow-sm text-uppercase" style="font-size: 0.85rem;">
                       Bekijk Scorebord
-                    </router-link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -81,9 +81,9 @@
                       <span class="badge bg-secondary text-dark fw-bold d-flex align-items-center justify-content-center" style="font-size: 0.85rem; height: 40px; min-width: 100px;">
                         VOLTOOID
                       </span>
-                      <router-link :to="`/leaderboard/${t.id}`" class="btn btn-outline-secondary fw-bold px-4 text-uppercase d-flex align-items-center justify-content-center" style="font-size: 0.85rem; height: 40px;">
+                      <button @click="openLeaderboard(t.id)" class="btn btn-outline-secondary fw-bold px-4 text-uppercase d-flex align-items-center justify-content-center" style="font-size: 0.85rem; height: 40px;">
                         Bekijk Uitslag
-                      </router-link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -100,6 +100,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useTournamentStore } from '@/stores/tournamentStore'
+
+const router = useRouter()
+const store = useTournamentStore()
 
 const tournaments = ref([])
 const loading = ref(true)
@@ -107,9 +112,15 @@ const loading = ref(true)
 const activeTournaments = computed(() => tournaments.value.filter(t => t.is_active && t.is_public))
 const completedTournaments = computed(() => tournaments.value.filter(t => !t.is_active && t.is_public))
 
+// NIEUWE FUNCTIE:
+const openLeaderboard = (id) => {
+  store.setTournamentId(id)       // Sla ID op in de store
+  router.push('/leaderboard')     // Navigeer naar de schone URL
+}
+
 const fetchTournaments = async () => {
   try {
-    const res = await fetch('/api/tournaments/')
+    const res = await fetch(`/api/tournaments/`) // (Aangepast naar relatief pad zoals we eerder bespraken)
     if (res.ok) {
       tournaments.value = await res.json()
     }
