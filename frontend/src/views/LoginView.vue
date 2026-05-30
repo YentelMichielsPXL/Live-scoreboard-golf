@@ -35,7 +35,7 @@ const router = useRouter()
 const Toast = ref(null)
 
 const handleLogin = async () => {
-  const res = await fetch('/auth/login', {
+  const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: username.value, password: password.value })
