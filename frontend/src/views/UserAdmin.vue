@@ -99,7 +99,7 @@ const newUser = ref({ username: '', password: '', role: 'scorer' })
 
 const fetchUsers = async () => {
   try {
-    const res = await fetch('/auth/allUsers', { // Aangepast naar je allUsers route
+    const res = await fetch('/api/auth/allUsers', { // Aangepast naar je allUsers route
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
     if (res.ok) {
@@ -112,7 +112,7 @@ const fetchUsers = async () => {
 
 const handleCreateUser = async () => {
   try {
-    const res = await fetch('/auth/register', {
+    const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ const handleCreateUser = async () => {
 
 const changeUserRole = async (userId, newRole) => {
   try {
-    const res = await fetch('/auth/updateRole/${userId}', {
+    const res = await fetch('/api/auth/updateRole/${userId}', {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
