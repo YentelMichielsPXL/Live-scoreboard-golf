@@ -172,11 +172,8 @@ const changeUserRole = async (userId, newRole) => {
 const removeUser = async (userId) => {
   if (!confirm("⚠️ Weet je zeker dat je dit account permanent wilt wissen?")) return
   try {
-<<<<<<< HEAD
-    const res = await fetch(`/api/users/${userId}`, {
-=======
+
     const res = await fetch(`/api/auth/delete/${userId}`, {
->>>>>>> refs/remotes/origin/main
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
