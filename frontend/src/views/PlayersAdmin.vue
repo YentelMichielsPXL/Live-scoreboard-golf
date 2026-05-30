@@ -275,7 +275,7 @@ const fetchActiveTournamentAndPlayers = async () => {
 }
 
 const changePlayerStatus = async (playerId, newStatus) => {
-  const res = await fetch('/api/tournaments/players/${playerId}/status', {
+  const res = await fetch(`/api/tournaments/players/${playerId}/status`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
     body: JSON.stringify({ status: newStatus })
@@ -289,7 +289,7 @@ const changePlayerStatus = async (playerId, newStatus) => {
 const saveNewCutPercentage = async () => {
   const pct = parseInt(tournamentDetails.value.cut_percentage)
   if (isNaN(pct) || pct < 1 || pct > 99) return
-  const res = await fetch('/api/tournaments/${tournamentDetails.value.id}/update-cut', {
+  const res = await fetch(`/api/tournaments/${tournamentDetails.value.id}/update-cut`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cut_percentage: pct, has_cut: true })
@@ -298,13 +298,13 @@ const saveNewCutPercentage = async () => {
 }
 
 const calculateCutPreview = async () => {
-  const res = await fetch('/api/tournaments/${tournamentDetails.value.id}/cut-preview')
+  const res = await fetch(`/api/tournaments/${tournamentDetails.value.id}/cut-preview`)
   if (res.ok) cutPreview.value = await res.json()
 }
 
 const applyCutDefinitive = async () => {
   if (confirm("Cut toepassen?")) {
-    const res = await fetch('/api/tournaments/${tournamentDetails.value.id}/apply-cut', { method: 'POST' })
+    const res = await fetch(`/api/tournaments/${tournamentDetails.value.id}/apply-cut`, { method: 'POST' })
     if (res.ok) { 
       cutPreview.value = null
       playerComposable.value?.fetchPlayers()
@@ -314,7 +314,7 @@ const applyCutDefinitive = async () => {
 
 const removeCutDefinitive = async () => {
   if (confirm("Weet je zeker dat je de toegepaste cut ongedaan wilt maken? Alle spelers die 'CUT' als status hadden, worden weer 'ACTIVE'.")) {
-    const res = await fetch('/api/tournaments/${tournamentDetails.value.id}/remove-cut', { 
+    const res = await fetch(`/api/tournaments/${tournamentDetails.value.id}/remove-cut`, { 
       method: 'POST',
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     })
@@ -333,7 +333,7 @@ const getScore = (player, roundNum, holeNum) => {
 const saveHoleScore = async (playerId, holeNum, strokes) => {
   const strokeCount = strokes === '' ? 0 : parseInt(strokes)
   if (isNaN(strokeCount) || strokeCount < 0) return
-  const res = await fetch('/api/scores/player/${playerId}', {
+  const res = await fetch(`/api/scores/player/${playerId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
     body: JSON.stringify({ hole_number: holeNum, strokes: strokeCount, round_number: activeRound.value })
