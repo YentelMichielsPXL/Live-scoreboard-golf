@@ -20,7 +20,7 @@ db = SessionLocal()
 try:
     admin_exists = db.query(models.User).filter(models.User.username == "admin").first()
     if not admin_exists:
-        hashed_password = hashlib.sha256("admin".encode()).hexdigest()
+        hashed_password = hashlib.sha256("admin123".encode()).hexdigest()
         default_admin = models.User(
             username="admin", 
             password_hash=hashed_password, 
