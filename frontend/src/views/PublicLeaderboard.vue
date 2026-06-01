@@ -78,7 +78,7 @@
               </tr>
             </thead>
             <transition-group tag="tbody" name="leaderboard-flip">
-              <tr v-for="row in displayedRankings" :key="'left-' + row.player_id" class="leaderboard-row mobile-grid-row" :class="{'opacity-50 bg-black bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
+              <tr v-for="row in displayedRankings" :key="'left-' + row.player_id" class="leaderboard-row mobile-grid-row" :class="{'opacity-50 bg-general bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
                 <td v-if="row.isCutLine" :colspan="isMobileBrowser ? 4 : 5" class="p-0 border-0 align-middle cell-cutline">
                   <div class="bg-danger text-white fw-black px-2 d-flex align-items-center text-start h-100 w-100" style="font-size: 0.75rem; letter-spacing: 1px;">
                     ✂️ PROJ. CUT
@@ -121,7 +121,7 @@
               <tr class="header-main">
                 <th v-for="h in leaderboardData.holes" :key="'h-' + h.hole_number" style="width: 50px;" class="hole-header">
                   <span class="fs-6 fw-bold text-white">{{ h.hole_number }}</span><br />
-                  <small class="text-warning-emphasis">P{{ h.par }}</small><br />
+                  <small class="text-warning-emphasis">Par{{ h.par }}</small><br />
                   <small class="text-warning-emphasis fw-bold" style="font-size: 0.55rem;">SI{{ h.stroke_index }}</small>
                 </th>
                 <template v-if="leaderboardData.num_rounds > 1">
@@ -131,7 +131,7 @@
               </tr>
             </thead>
             <transition-group tag="tbody" name="leaderboard-flip">
-              <tr v-for="row in displayedRankings" :key="'mid-' + row.player_id" class="leaderboard-row" :class="{'opacity-50 bg-black bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
+              <tr v-for="row in displayedRankings" :key="'mid-' + row.player_id" class="leaderboard-row" :class="{'opacity-50 bg-general bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
                 <td v-if="row.isCutLine" :colspan="leaderboardData.holes.length + (leaderboardData.num_rounds > 1 ? 2 : 0)" class="p-0 border-0 align-middle">
                   <div class="bg-danger h-100 w-100"></div>
                 </td>
@@ -173,7 +173,7 @@
               </tr>
             </thead>
             <transition-group tag="tbody" name="leaderboard-flip">
-              <tr v-for="row in displayedRankings" :key="'right-' + row.player_id" class="leaderboard-row" :class="{'opacity-50 bg-black bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
+              <tr v-for="row in displayedRankings" :key="'right-' + row.player_id" class="leaderboard-row" :class="{'opacity-50 bg-general bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
                 <td v-if="row.isCutLine" class="p-0 border-0 align-middle">
                   <div class="bg-danger shadow-sm h-100 w-100"></div>
                 </td>
@@ -468,7 +468,7 @@ onUnmounted(() => {
 
 <style scoped>
 .leaderboard-wrapper {
-  background-color: #0c0e12; 
+  background-color: #0b2516; 
   min-height: 100vh;
 }
 
