@@ -33,6 +33,10 @@
   font-family: 'Courier New', Courier, monospace;
 }
 
+.bg-general {
+  background-color: rgba(11,37,22,0.4);
+}
+
 .bg-black-card {
   background-color: #12161f;
 }

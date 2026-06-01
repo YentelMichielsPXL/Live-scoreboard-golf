@@ -1,6 +1,7 @@
 <template>
-  <div class="leaderboard-wrapper py-4 text-white overflow-x-hidden" style="min-height: 100vh">
+  <div class="leaderboard-wrapper py-4 text-white overflow-x-hidden">
     <div class="container-fluid px-2 px-md-3">
+      <!-- Top Bar met Toernooinaam en Knoppen -->
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center border-bottom border-secondary pb-3 mb-3 gap-2">
         
         <div class="w-100 w-md-auto mb-2 mb-md-0 d-flex align-items-center gap-3">
@@ -58,22 +59,25 @@
         </div>
       </div>
 
+      <!-- DE VERDEELDE COMPACTE SCOREBORD LAYOUT -->
       <div class="shadow-lg rounded overflow-hidden border border-dark bg-black-card scoreboard-flex-container">
         
+        <!-- BLOCK 1: LINKERKANT -->
         <div class="scoreboard-side-block left-block">
           <table class="table table-custom m-0 text-center align-middle text-uppercase mobile-responsive-grid">
-            <thead class="mobile-grid-header-hide">
+            <!-- WIJZIGING: Header is nu weer zichtbaar en gestyled voor mobiel -->
+            <thead class="mobile-grid-header">
               <tr class="header-main">
                 <th class="cell-pos">POS</th>
-                <th class="text-start ps-2 cell-player">PLAYER</th>
-                <th class="text-warning-emphasis cell-metric">
+                <th class="cell-player">PLAYER</th>
+                <th class="cell-metric text-warning-emphasis">
                   {{ leaderboardData.format === "stableford" ? "POINTS" : "TO PAR" }}
                 </th>
                 <th class="d-none d-md-table-cell-custom cell-thru" style="width: 65px;">THRU</th>
-                <th class="d-block d-md-none text-warning bg-black fw-black cell-tot">TOT</th>
+                <th class="d-block d-md-none text-warning fw-black cell-tot">TOT</th>
               </tr>
             </thead>
-            <tbody>
+            <transition-group tag="tbody" name="leaderboard-flip">
               <tr v-for="row in displayedRankings" :key="'left-' + row.player_id" class="leaderboard-row mobile-grid-row" :class="{'opacity-50 bg-black bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
                 <td v-if="row.isCutLine" :colspan="isMobileBrowser ? 4 : 5" class="p-0 border-0 align-middle cell-cutline">
                   <div class="bg-danger text-white fw-black px-2 d-flex align-items-center text-start h-100 w-100" style="font-size: 0.75rem; letter-spacing: 1px;">
@@ -88,7 +92,9 @@
                     </div>
                     <div class="handicap-sub text-white-50 style-small d-flex align-items-center gap-1" style="white-space: nowrap; overflow: hidden;">
                       <span>HCP: <span class="text-warning fw-bold">{{ row.handicap }}</span></span>
-                      <span class="d-inline d-md-none badge bg-secondary text-white font-numeric py-0 px-1" style="font-size: 0.65rem;">T:{{ row.thru }}</span>
+                      <span class="d-inline-flex d-md-none align-items-center justify-content-center badge bg-secondary text-white font-numeric px-2 py-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                        Thru:{{ row.thru }}
+                      </span>
                     </div>
                   </td>
                   <td class="fw-bold fs-3 font-numeric p-1 cell-metric">
@@ -98,16 +104,17 @@
                   </td>
                   <td class="text-white-50 font-numeric fw-bold fs-5 d-none d-md-table-cell-custom cell-thru">{{ row.thru }}</td>
                   <td class="p-1 d-block d-md-none cell-tot">
-                    <span class="total-score-badge bg-black text-warning border border-secondary border-opacity-50 fw-black fs-4 d-flex align-items-center justify-content-center h-100 rounded py-1">
+                    <span class="total-score-badge text-warning border border-secondary border-opacity-50 fw-black fs-4 d-flex align-items-center justify-content-center h-100 rounded py-1" style="background-color: #0b2516;">
                       {{ row.total_strokes || "-" }}
                     </span>
                   </td>
                 </template>
               </tr>
-            </tbody>
+            </transition-group>
           </table>
         </div>
 
+        <!-- BLOCK 2: SCROLLBARE MIDDENBOX -->
         <div class="scoreboard-middle-scroll custom-scrollbar d-none d-md-block">
           <table class="table table-custom m-0 text-center align-middle text-uppercase" :style="{ minWidth: (leaderboardData.holes.length * 50 + (leaderboardData.num_rounds > 1 ? 120 : 0)) + 'px' }">
             <thead>
@@ -123,7 +130,7 @@
                 </template>
               </tr>
             </thead>
-            <tbody>
+            <transition-group tag="tbody" name="leaderboard-flip">
               <tr v-for="row in displayedRankings" :key="'mid-' + row.player_id" class="leaderboard-row" :class="{'opacity-50 bg-black bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
                 <td v-if="row.isCutLine" :colspan="leaderboardData.holes.length + (leaderboardData.num_rounds > 1 ? 2 : 0)" class="p-0 border-0 align-middle">
                   <div class="bg-danger h-100 w-100"></div>
@@ -153,10 +160,11 @@
                   </template>
                 </template>
               </tr>
-            </tbody>
+            </transition-group>
           </table>
         </div>
 
+        <!-- BLOCK 3: VASTE RECHTERKANT (DESKTOP) -->
         <div class="scoreboard-side-block right-block d-none d-md-block">
           <table class="table table-custom m-0 text-center align-middle text-uppercase">
             <thead>
@@ -164,20 +172,20 @@
                 <th style="width: 75px;" class="text-warning bg-black fw-black">TOT</th>
               </tr>
             </thead>
-            <tbody>
+            <transition-group tag="tbody" name="leaderboard-flip">
               <tr v-for="row in displayedRankings" :key="'right-' + row.player_id" class="leaderboard-row" :class="{'opacity-50 bg-black bg-opacity-25': row.status !== 'ACTIVE' && !row.isCutLine, 'cut-line-row': row.isCutLine}">
                 <td v-if="row.isCutLine" class="p-0 border-0 align-middle">
                   <div class="bg-danger shadow-sm h-100 w-100"></div>
                 </td>
                 <template v-else>
-                  <td class="p-2 bg-black bg-opacity-50 h-100">
-                    <span class="total-score-badge bg-black text-warning border border-secondary border-opacity-25 fw-black fs-4 d-flex align-items-center justify-content-center h-100 rounded py-1">
+                  <td class="p-2 h-100" style="background-color: rgba(11, 37, 22, 0.4);">
+                    <span class="total-score-badge text-warning border border-secondary border-opacity-25 fw-black fs-4 d-flex align-items-center justify-content-center h-100 rounded py-1" style="background-color: #0b2516;">
                       {{ row.total_strokes || "-" }}
                     </span>
                   </td>
                 </template>
               </tr>
-            </tbody>
+            </transition-group>
           </table>
         </div>
 
@@ -459,7 +467,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* DE KLEUR AANPASSING IS VERWIJDERD: Het neemt weer netjes de kleur over van je eigen stijlen! */
+.leaderboard-wrapper {
+  background-color: #0c0e12; 
+  min-height: 100vh;
+}
+
 .scoreboard-flex-container {
   display: flex;
   width: 100%;
@@ -533,8 +545,26 @@ onUnmounted(() => {
     width: 100% !important;
   }
 
-  .mobile-grid-header-hide {
-    display: none !important;
+  /* WIJZIGING: De Header is nu wiskundig perfect uitgelijnd met de rijen eronder */
+  .mobile-grid-header {
+    display: block !important;
+  }
+  .mobile-grid-header .header-main {
+    display: grid !important;
+    grid-template-columns: 42px 1fr 75px 65px !important;
+    align-items: center !important;
+    padding: 4px !important; /* Exacte match met tbody tr padding */
+    margin-bottom: 4px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  .mobile-grid-header th {
+    display: block !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    border: none !important;
+    font-size: 0.75rem !important;
+    color: rgba(255,255,255,0.6) !important;
   }
 
   .mobile-responsive-grid tbody tr {
@@ -544,16 +574,15 @@ onUnmounted(() => {
     height: auto !important; 
     min-height: 65px !important; 
     max-height: none !important; 
-    padding: 10px 8px !important; 
-    margin-bottom: 8px !important; 
-    /* Gebruikt nu jouw eigen bg-black-card achtige kleur in plaats van een willekeurige zwarte tint */
-    background-color: #12161f !important; 
-    border: 1px solid rgba(255, 255, 255, 0.08) !important; 
-    border-radius: 8px !important; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important; 
+    padding: 4px !important; /* Exacte match met thead tr padding */
+    margin-bottom: 6px !important; 
+    background-color: rgba(255, 255, 255, 0.03) !important; 
+    border: none !important; 
+    border-radius: 6px !important; 
+    box-shadow: none !important; 
   }
 
-  .table-custom td, .table-custom th {
+  .table-custom td {
     border-bottom: none !important; 
     padding: 4px 2px !important; 
     height: auto !important;
@@ -561,6 +590,7 @@ onUnmounted(() => {
     min-height: auto !important;
   }
 
+  /* Dwing perfecte kolom positionering en uitlijning af */
   .cell-pos    { grid-column: 1 !important; text-align: center !important; width: 100% !important; }
   .cell-player { grid-column: 2 !important; text-align: left !important; width: 100% !important; min-width: 0 !important; }
   .cell-metric { grid-column: 3 !important; text-align: center !important; width: 100% !important; }
@@ -587,10 +617,9 @@ onUnmounted(() => {
 
 /* --- OPTIMALISATIE VOOR TV'S EN GROTE SCHERMEN --- */
 @media (min-width: 1600px) {
-  /* Alleen zoom toepassen. De wrapper pakt zelf de juiste hoogte nu `min-height: 100vh` inline staat */
   .leaderboard-wrapper {
-    zoom: 0.8;
-    min-height: 125vh !important; 
+    zoom: 0.75;
+    min-height: 133.33vh !important; 
   }
 }
 </style>

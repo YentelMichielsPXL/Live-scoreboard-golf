@@ -29,7 +29,7 @@ class TournamentCreateBody(BaseModel):
     has_cut: bool
     cut_percentage: int
     num_rounds: int
-    is_public: bool = False # NIEUW
+    is_public: bool = False
 
 def golf_round(value: float) -> int:
     if value >= 0:
@@ -66,7 +66,7 @@ def get_tournaments(db: Session = Depends(get_db)):
             "has_cut": t.has_cut,
             "cut_percentage": t.cut_percentage,
             "is_active": is_active,
-            "is_public": getattr(t, 'is_public', False), # NIEUW
+            "is_public": getattr(t, 'is_public', False),
             "course": {"name": t.course.name} if hasattr(t, "course") and t.course else None,
             "players": [p.id for p in players]
         })
@@ -109,7 +109,7 @@ def create_tournament(
     new_tournament = models.Tournament(
         name=body.name, date=parsed_date, course_id=body.course_id,
         format=body.format, has_cut=body.has_cut, cut_percentage=body.cut_percentage,
-        num_rounds=body.num_rounds, is_public=body.is_public # NIEUW
+        num_rounds=body.num_rounds, is_public=body.is_public
     )
     db.add(new_tournament)
     db.commit()
@@ -213,6 +213,13 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
         has_played_any = False
         holes_played = 0
         
+        # Countback variabelen voor strokeplay ties
+        last_9 = 0
+        last_6 = 0
+        last_3 = 0
+        last_2 = 0
+        last_1 = 0
+        
         for s in p.scores:
             if s.strokes > 0:
                 has_played_any = True
@@ -222,6 +229,13 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
                 si = hole_meta["stroke_index"] if hole_meta else s.hole_number
                 
                 total_to_par += (s.strokes - par)
+                
+                # Sla de scores op voor mogelijke countback beslissingen
+                if s.hole_number >= 10: last_9 += s.strokes
+                if s.hole_number >= 13: last_6 += s.strokes
+                if s.hole_number >= 16: last_3 += s.strokes
+                if s.hole_number >= 17: last_2 += s.strokes
+                if s.hole_number == 18: last_1 += s.strokes
                 
                 if playing_hcp >= 0:
                     base_extra = playing_hcp // 18
@@ -244,7 +258,12 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
             "total_stableford": total_stableford if has_played_any else 0,
             "playing_hcp": playing_hcp,
             "has_played": has_played_any,
-            "holes_played": holes_played
+            "holes_played": holes_played,
+            "last_9": last_9,
+            "last_6": last_6,
+            "last_3": last_3,
+            "last_2": last_2,
+            "last_1": last_1
         })
 
     men_calc = [p for p in players_with_calculations if p["player"].gender == "M"]
@@ -276,50 +295,66 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
         projected_cut_women = get_projected_cut(women_calc)
 
     def rank_group(calc_list):
-        if t.format == "stableford":
-            calc_list.sort(key=lambda x: (
-                x["player"].status != "ACTIVE", 
-                -x["total_stableford"] if x["has_played"] else 9999, 
-                x["player"].handicap if not x["has_played"] else 0,
-                -x["holes_played"], 
-                x["total_strokes"]
-            ))
-        else:
-            calc_list.sort(key=lambda x: (
-                x["player"].status != "ACTIVE", 
-                x["total_to_par"] if x["has_played"] else 9999, 
-                x["player"].handicap if not x["has_played"] else 0,
-                -x["holes_played"], 
-                x["total_strokes"]
-            ))
+        # 1. Definieer de TIE-BREAKER LOGICA per speler
+        def get_sort_key(x):
+            if not x["has_played"]:
+                return (9999,) # Onderaan plaatsen
+                
+            hcp = x["player"].handicap if x["player"].handicap is not None else 0
+            
+            if t.format == "stableford":
+                return (
+                    -x["total_stableford"],  # Hoogste punten wint
+                    -x["holes_played"],      # Meeste holes gespeeld wint
+                    hcp                      # Laagste HCP wint bij Stableford tie
+                )
+            else:
+                return (
+                    x["total_to_par"],       # Laagste par wint
+                    -x["holes_played"],      # Meeste holes gespeeld wint
+                    x["last_9"],             # Minste slagen laatste 9
+                    x["last_6"],             # Minste slagen laatste 6
+                    x["last_3"],             # Minste slagen laatste 3
+                    x["last_2"],             # Minste slagen laatste 2
+                    x["last_1"],             # Minste slagen hole 18
+                    -hcp                     # Hoogste HCP wint bij Strokeplay tie
+                )
 
+        # 2. Sorteer de lijst op basis van de Tie-Breaker
+        calc_list.sort(key=lambda x: (
+            x["player"].status != "ACTIVE", 
+            *get_sort_key(x)
+        ))
+
+        # 3. Houd per exacte signatuur bij of er een TIE (T) is op ALLES
         score_counts = {}
         for item in calc_list:
-            p = item["player"]
-            if p.status == "ACTIVE" and item["has_played"]:
-                score = item["total_stableford"] if t.format == "stableford" else item["total_to_par"]
-                score_counts[score] = score_counts.get(score, 0) + 1
+            if item["player"].status == "ACTIVE" and item["has_played"]:
+                sig = get_sort_key(item)
+                score_counts[sig] = score_counts.get(sig, 0) + 1
 
         rankings = []
-        prev_score = None
+        prev_sig = None
         displayed_rank = 1
 
+        # 4. Format de finale posities voor Vue
         for idx, item in enumerate(calc_list):
             p = item["player"]
             if p.status != "ACTIVE" or not item["has_played"]:
                 pos_val = "-"
             else:
-                score = item["total_stableford"] if t.format == "stableford" else item["total_to_par"]
-                if prev_score is not None and score == prev_score:
-                    pass 
+                sig = get_sort_key(item)
+                if prev_sig is not None and sig == prev_sig:
+                    pass # Zelfde exacte signatuur, rang blijft gelijk
                 else:
                     displayed_rank = idx + 1
                 
-                if score_counts.get(score, 0) > 1:
+                # Als er meerdere mensen exact dezelfde wiskundige signatuur hebben, krijgen ze een 'T'
+                if score_counts.get(sig, 0) > 1:
                     pos_val = f"T{displayed_rank}"
                 else:
                     pos_val = str(displayed_rank)
-                prev_score = score
+                prev_sig = sig
 
             round_scores = {1: {}, 2: {}, 3: {}, 4: {}}
             for s in p.scores:
