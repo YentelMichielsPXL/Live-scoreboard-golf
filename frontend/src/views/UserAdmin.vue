@@ -3,7 +3,6 @@
     <h2 class="mb-4 text-success border-bottom pb-2">Gebruikers & Scorers Beheren</h2>
 
     <div class="row g-4">
-      <!-- Formulier: Gebruiker Aanmaken -->
       <div class="col-md-4">
         <div class="card shadow-sm border-0">
           <div class="card-header bg-white font-weight-bold">Nieuwe Scorer Registreren</div>
@@ -32,7 +31,6 @@
         </div>
       </div>
 
-      <!-- Live Lijst met alle actieve accounts -->
       <div class="col-md-8">
         <div class="card shadow-sm border-0">
           <div class="card-header bg-white font-weight-bold d-flex justify-content-between align-items-center">
@@ -46,7 +44,7 @@
                   <th style="width: 70px;">ID</th>
                   <th class="text-start ps-3">Gebruikersnaam</th>
                   <th style="width: 160px;">Toezichthoudende Rol</th>
-                  <th style="width: 100px;">Acties</th>
+                  <th style="width: 130px;">Acties</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,7 +54,6 @@
                     👤 {{ user.username }}
                   </td>
                   <td>
-                    <!-- Wijzig de rol direct via een dropdown -->
                     <select 
                       :value="user.role" 
                       @change="changeUserRole(user.id, $event.target.value)"
@@ -68,13 +65,22 @@
                     </select>
                   </td>
                   <td>
-                    <button 
-                      @click="removeUser(user.id)" 
-                      class="btn btn-sm btn-outline-danger border-0 p-1"
-                      title="Verwijder account"
-                    >
-                      🗑️ Wissen
-                    </button>
+                    <div class="d-flex justify-content-center gap-2">
+                      <button 
+                        @click="resetPassword(user.id, user.username)" 
+                        class="btn btn-sm btn-outline-warning border-0 p-1"
+                        title="Nieuw wachtwoord instellen"
+                      >
+                        🔑 Reset
+                      </button>
+                      <button 
+                        @click="removeUser(user.id)" 
+                        class="btn btn-sm btn-outline-danger border-0 p-1"
+                        title="Verwijder account"
+                      >
+                        🗑️ Wissen
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 <tr v-if="usersList.length === 0">
@@ -141,19 +147,15 @@ const changeUserRole = async (userId, newRole) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       },
-      body: JSON.stringify({ new_role: newRole }) // Matched met RoleUpdateBody
+      body: JSON.stringify({ new_role: newRole }) 
     })
     
     if (res.ok) {
       const data = await res.json()
       
-      
       if (data.is_self) {
-        // 1. Overschrijf direct je rol in de browser cache
         sessionStorage.setItem('role', data.new_role)
-        
         alert("🔄 Je hebt je eigen rol gewijzigd naar Scorer. Je wordt direct doorverwezen naar de scorer-omgeving.")
-        
         window.location.href = '/admin/tournaments' 
         return
       }
@@ -169,10 +171,37 @@ const changeUserRole = async (userId, newRole) => {
   }
 }
 
+// NIEUW: Functie om als Admin het wachtwoord van een gebruiker te forceren/resetten
+const resetPassword = async (userId, username) => {
+  const newPassword = prompt(`Vul een nieuw wachtwoord in voor de gebruiker '${username}':`);
+  
+  // Annuleren of leeg gelaten? Dan stoppen we.
+  if (!newPassword || newPassword.trim() === '') return;
+
+  try {
+    const res = await fetch(`/api/auth/reset-password/${userId}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}` 
+      },
+      body: JSON.stringify({ password: newPassword })
+    })
+
+    if (res.ok) {
+      alert(`✅ Wachtwoord voor ${username} is succesvol gewijzigd!`);
+    } else {
+      const err = await res.json()
+      alert(`🚨 Fout bij wijzigen: ${err.detail || 'Er ging iets mis.'}`)
+    }
+  } catch (error) {
+    console.error("Fout bij resetten wachtwoord:", error)
+  }
+}
+
 const removeUser = async (userId) => {
   if (!confirm("⚠️ Weet je zeker dat je dit account permanent wilt wissen?")) return
   try {
-
     const res = await fetch(`/api/auth/delete/${userId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }

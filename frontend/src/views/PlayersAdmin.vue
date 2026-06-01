@@ -113,10 +113,10 @@
       <span class="badge bg-warning text-dark px-3 py-2 fs-6 fw-bold">RONDE {{ activeRound }}</span>
     </div>
 
-    <div class="d-block d-md-none mobile-wizard-container mb-4">
+    <div class="mobile-wizard-container mb-4" :class="userRole === 'admin' ? 'd-block d-md-none' : 'd-block'">
       <div class="card shadow-sm border-0">
         <div class="card-header bg-dark text-warning font-weight-bold">
-          📱 Mobiele Score Invoer (Flight)
+          📱 Score Invoer (Mijn Flight)
         </div>
         <div class="card-body p-2 p-sm-3">
           <label class="form-label fw-bold text-secondary small mb-1">Stap 1: Stel je flight samen (max 3)</label>
@@ -173,13 +173,13 @@
     </div>
 
 
-    <div class="card shadow-sm border-0 d-none d-md-block">
+    <div v-if="userRole === 'admin'" class="card shadow-sm border-0 d-none d-md-block">
       <div class="card-body p-0 table-responsive">
         <table class="table table-bordered table-striped align-middle m-0 text-center">
           <thead class="table-dark">
             <tr>
               <th class="text-start ps-3" style="min-width: 200px;">Speler</th>
-              <th v-if="userRole === 'admin'" style="min-width: 160px;">Status / Acties</th>
+              <th style="min-width: 160px;">Status / Acties</th>
               <th v-for="h in 18" :key="h" style="width: 45px; min-width: 45px;">H{{ h }}</th>
             </tr>
           </thead>
@@ -194,7 +194,7 @@
                 </div>
                 <small class="text-muted">Hcp: {{ player.handicap }} | {{ player.gender }}</small>
               </td>
-              <td v-if="userRole === 'admin'" class="p-2">
+              <td class="p-2">
                 <div class="d-flex gap-1 align-items-center justify-content-center">
                   <select :value="player.status" @change="changePlayerStatus(player.id, $event.target.value)" class="form-select form-select-sm py-0" style="font-size: 0.8rem; height: 28px;">
                     <option value="ACTIVE">🟢 Speelt</option>
@@ -237,10 +237,8 @@ const cutPreview = ref(null)
 const newPlayer = ref({ first_name: '', last_name: '', handicap: null, gender: 'M' })
 const csvFile = ref(null)
 
-
 const savedFlight = sessionStorage.getItem('active_flight')
 const flightIds = ref(savedFlight ? JSON.parse(savedFlight) : [null, null, null])
-
 
 watch(flightIds, (newFlight) => {
   sessionStorage.setItem('active_flight', JSON.stringify(newFlight))

@@ -17,9 +17,7 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
-    # credentials.credentials bevat nu DIRECT de kale token, "Bearer " is er al vanaf gehaald!
     token = credentials.credentials
-    
     user = db.query(models.User).filter(models.User.token == token).first()
     if not user:
         raise HTTPException(status_code=401, detail="Sessie verlopen of ongeldig")
@@ -33,7 +31,6 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=400, detail="Gebruikersnaam of wachtwoord onjuist")
     
-    # Genereer een tijdelijke sessie-token
     user.token = str(uuid.uuid4())
     db.commit()
     return user
@@ -83,6 +80,31 @@ def update_user_role(
     return {"message": f"Rol van gebruiker {user.username} is bijgewerkt naar {user.role}",
             "new_role": user.role,
             "is_self": user.id == current_user.id}
+
+# --- NIEUW: WACHTWOORD RESET ROUTE ---
+class PasswordResetBody(BaseModel):
+    password: str
+
+@router.put("/reset-password/{user_id}")
+def reset_password(
+    user_id: int, 
+    reset_data: PasswordResetBody, 
+    current_user: models.User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+    ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Alleen admins mogen wachtwoorden resetten")
+    
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Gebruiker niet gevonden")
+    
+    # Versleutel het nieuwe wachtwoord en forceer de gebruiker om opnieuw in te loggen
+    user.password_hash = hash_password(reset_data.password)
+    user.token = None 
+    db.commit()
+    
+    return {"message": f"Wachtwoord voor {user.username} is succesvol gewijzigd."}
 
 @router.delete("/delete/{user_id}")
 def delete_user(
