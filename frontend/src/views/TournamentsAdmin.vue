@@ -69,11 +69,16 @@
 
     <div class="row g-4">
       <div v-for="t in tournaments" :key="t.id" class="col-md-6">
-        <div class="card shadow-sm border-0 h-100 border-start border-4" :class="t.is_public ? 'border-success' : 'border-secondary'">
+        <div class="card shadow-sm border-0 h-100 border-start border-4" :class="t.is_live ? 'border-danger' : (t.is_public ? 'border-success' : 'border-secondary')">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h5 class="card-title fw-bold text-dark">{{ t.name }}</h5>
               <div class="d-flex gap-2">
+                
+                <button v-if="userRole === 'admin'" @click="toggleLive(t)" class="btn btn-sm fw-bold shadow-sm" :class="t.is_live ? 'btn-danger text-white' : 'btn-outline-danger'">
+                  {{ t.is_live ? '🔴 LIVE AAN' : '⚪ Live uit' }}
+                </button>
+
                 <button v-if="userRole === 'admin'" @click="toggleVisibility(t)" class="btn btn-sm fw-bold shadow-sm" :class="t.is_public ? 'btn-success text-white' : 'btn-outline-secondary'">
                   {{ t.is_public ? '👁️ Zichtbaar' : '🙈 Verborgen' }}
                 </button>
@@ -81,7 +86,7 @@
               </div>
             </div>
             
-            <p class="text-muted mb-2">📅 {{ t.date || 'Geen datum' }} | 📍 {{ t.course?.name || 'Onbekende Baan' }}</p>
+            <p class="text-muted mb-2">📅 {{ t.date ? formatDate(t.date): 'Geen datum' }} | 📍 {{ t.course?.name || 'Onbekende Baan' }}</p>
             
             <div class="mb-3">
               <span class="badge" :class="t.format === 'stableford' ? 'bg-primary' : 'bg-dark'">
@@ -94,7 +99,7 @@
             <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
               <span class="text-secondary small">Spelers geregistreerd: <strong>{{ t.players?.length || 0 }}</strong></span>
               <router-link :to="`/admin/tournaments/${t.id}/players`" class="btn btn-sm btn-dark fw-bold">
-                👥 Spelers & Scores Beheren
+                ⚙️ Spelers & Scores Beheren
               </router-link>
             </div>
           </div>
@@ -122,7 +127,8 @@ const newTournament = ref({
   has_cut: false,
   cut_percentage: 75,
   num_rounds: 1,
-  is_public: false
+  is_public: false,
+  is_live: false 
 })
 
 const fetchData = async () => {
@@ -130,6 +136,15 @@ const fetchData = async () => {
   tournaments.value = await resT.json()
   const resC = await fetch(COURSES_API_URL)
   availableCourses.value = await resC.json()
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ""
+  const parts = dateString.split('-');
+  if (parts.length === 3){
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return dateString;
 }
 
 const createTournament = async () => {
@@ -143,7 +158,7 @@ const createTournament = async () => {
       body: JSON.stringify(newTournament.value)
     })
     if (res.ok) {
-      newTournament.value = { name: '', date: '', course_id: '', format: 'stableford', has_cut: false, cut_percentage: 75, num_rounds: 1, is_public: false }
+      newTournament.value = { name: '', date: '', course_id: '', format: 'stableford', has_cut: false, cut_percentage: 75, num_rounds: 1, is_public: false, is_live: false }
       fetchData()
     } else {
       alert("Fout bij het aanmaken. Ben je wel admin?")
@@ -153,6 +168,22 @@ const createTournament = async () => {
   }
 }
 
+// NIEUW: Live Toggler
+const toggleLive = async (t) => {
+  try {
+    const res = await fetch(`${API_URL}${t.id}/live`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ is_live: !t.is_live })
+    })
+    if (res.ok) fetchData()
+  } catch (error) {
+    console.error("Fout bij aanpassen live status:", error)
+  }
+}
 
 const toggleVisibility = async (t) => {
   try {

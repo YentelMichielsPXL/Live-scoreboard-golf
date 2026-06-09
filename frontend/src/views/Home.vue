@@ -45,15 +45,15 @@
                   <div>
                     <h4 class="fw-bold text-white mb-1">{{ t.name }}</h4>
                     <div class="d-flex flex-wrap gap-2 text-white-50 small mt-2">
-                      <span>📅 {{ t.date || 'Geen datum' }}</span>
+                      <span>📅 {{ t.date ? formatDate(t.date) : 'Geen datum' }}</span>
                       <span>|</span>
                       <span>📍 {{ t.course?.name || 'Golf Hasselt' }}</span>
                       <span>|</span>
                       <span class="text-warning fw-bold text-uppercase">{{ t.format }}</span>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center gap-3 justify-content-between justify-content-md-end">
-                    <span class="badge bg-danger pulse-effect px-3 py-2 fw-bold d-flex align-items-center justify-content-center" style="font-size: 0.75rem; height:40px;min-width: 100px;">🔴 LIVE</span>
+                  <div v-if="t.is_live" class="d-flex align-items-center gap-3 justify-content-between justify-content-md-end">
+                    <span  class="badge bg-danger pulse-effect px-3 py-2 fw-bold d-flex align-items-center justify-content-center" style="font-size: 0.75rem; height:40px;min-width: 100px;">🔴 LIVE</span>
                     <button @click="openLeaderboard(t.id)" class="btn btn-success fw-bold px-4 py-2 shadow-sm text-uppercase" style="font-size: 0.85rem;">
                       Bekijk Scorebord
                     </button>
@@ -111,6 +111,14 @@ const loading = ref(true)
 
 const activeTournaments = computed(() => tournaments.value.filter(t => t.is_active && t.is_public))
 const completedTournaments = computed(() => tournaments.value.filter(t => !t.is_active && t.is_public))
+const formatDate = (dateString) => {
+  if (!dateString) return ""
+  const parts = dateString.split('-');
+  if (parts.length === 3){
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return dateString;
+}
 
 const openLeaderboard = (id) => {
   store.setTournamentId(id)
@@ -119,7 +127,7 @@ const openLeaderboard = (id) => {
 
 const fetchTournaments = async () => {
   try {
-    const res = await fetch(`/api/tournaments/`) // (Aangepast naar relatief pad zoals we eerder bespraken)
+    const res = await fetch(`/api/tournaments/`)
     if (res.ok) {
       tournaments.value = await res.json()
     }
@@ -136,7 +144,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.home-wrapper { background-color: #0c0e12; }
+.home-wrapper { background-color: #0b2516; }
 .scoreboard-title { color: #ffffff; font-family: 'Arial Black', sans-serif; font-weight: 900; letter-spacing: 1px; }
 .bg-black-card { background-color: #12161f; }
 .fw-black { font-weight: 900; }

@@ -21,6 +21,9 @@ class CutUpdateBody(BaseModel):
 class VisibilityUpdateBody(BaseModel):
     is_public: bool
 
+class LiveUpdateBody(BaseModel):
+    is_live: bool
+
 class TournamentCreateBody(BaseModel):
     name: str
     date: str
@@ -30,6 +33,8 @@ class TournamentCreateBody(BaseModel):
     cut_percentage: int
     num_rounds: int
     is_public: bool = False
+    is_live: bool = False
+
 
 def golf_round(value: float) -> int:
     if value >= 0:
@@ -67,6 +72,7 @@ def get_tournaments(db: Session = Depends(get_db)):
             "cut_percentage": t.cut_percentage,
             "is_active": is_active,
             "is_public": getattr(t, 'is_public', False),
+            "is_live": getattr(t, 'is_live', False),
             "course": {"name": t.course.name} if hasattr(t, "course") and t.course else None,
             "players": [p.id for p in players]
         })
@@ -109,7 +115,7 @@ def create_tournament(
     new_tournament = models.Tournament(
         name=body.name, date=parsed_date, course_id=body.course_id,
         format=body.format, has_cut=body.has_cut, cut_percentage=body.cut_percentage,
-        num_rounds=body.num_rounds, is_public=body.is_public
+        num_rounds=body.num_rounds, is_public=body.is_public, is_live=body.is_live
     )
     db.add(new_tournament)
     db.commit()
@@ -297,10 +303,11 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
     def rank_group(calc_list):
         # 1. Definieer de TIE-BREAKER LOGICA per speler
         def get_sort_key(x):
+            hcp = x["player"].handicap if x["player"].handicap is not None else 36
+
             if not x["has_played"]:
-                return (9999,) # Onderaan plaatsen
+                return (9999, hcp) # Onderaan plaatsen
                 
-            hcp = x["player"].handicap if x["player"].handicap is not None else 0
             
             if t.format == "stableford":
                 return (
@@ -384,6 +391,8 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
                 "player_id": p.id,
                 "pos": pos_val,
                 "name": f"{p.first_name} {p.last_name}",
+                "first_name": p.first_name,
+                "last_name": p.last_name,
                 "status": p.status,
                 "handicap": p.handicap or 0.0,
                 "playing_hcp": item["playing_hcp"],
@@ -405,7 +414,8 @@ def get_tournament_leaderboard(tournament_id: int, db: Session = Depends(get_db)
         "rankings_women": rank_group(women_calc),
         "projected_cut_men": projected_cut_men,
         "projected_cut_women": projected_cut_women,
-        "is_active": tournament_active
+        "is_active": tournament_active,
+        "is_live": getattr(t, 'is_live', False)
     }
 
 @router.put("/{tournament_id}/visibility")
@@ -418,6 +428,17 @@ def update_tournament_visibility(tournament_id: int, body: VisibilityUpdateBody,
     t.is_public = body.is_public
     db.commit()
     return {"message": "Zichtbaarheid geüpdatet", "is_public": t.is_public}
+
+@router.put("/{tournament_id}/live")
+def update_tournament_live_status(tournament_id: int, body: LiveUpdateBody, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Alleen admins mogen dit aanpassen")
+    t = db.query(models.Tournament).filter(models.Tournament.id == tournament_id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="Toernooi niet gevonden")
+    t.is_live = body.is_live
+    db.commit()
+    return {"message": "Live status geüpdatet", "is_live": t.is_live}
 
 @router.put("/{tournament_id}/update-cut")
 def update_tournament_cut(tournament_id: int, body: CutUpdateBody, db: Session = Depends(get_db)):

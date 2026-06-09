@@ -86,7 +86,8 @@ class TournamentBase(BaseModel):
     has_cut: bool = False
     cut_percentage: Optional[int] = None
     num_rounds: int = 1
-    is_public: bool = False # NIEUW
+    is_public: bool = False
+    is_live: bool = False
 
 class TournamentCreate(TournamentBase):
     pass

@@ -53,7 +53,7 @@
             </button>
           </div>
 
-          <span v-if="leaderboardData.is_active" class="badge bg-danger pulse-effect px-2 py-2 fw-bold text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px">
+          <span v-if="leaderboardData.is_live" class="badge bg-danger pulse-effect px-2 py-2 fw-bold text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px">
             <span>🔴 LIVE</span>
           </span>
         </div>
@@ -88,7 +88,7 @@
                   <td class="fw-bold text-warning fs-4 px-1 cell-pos">{{ row.pos }}</td>
                   <td class="text-start ps-2 py-1 cell-player" style="min-width: 0;">
                     <div class="player-name text-white fw-bold fs-5 text-truncate-custom">
-                      {{ formatName(row.name) }}
+                      {{ formatName(row) }}
                     </div>
                     <div class="handicap-sub text-white-50 style-small d-flex align-items-center gap-1" style="white-space: nowrap; overflow: hidden;">
                       <span>HCP: <span class="text-warning fw-bold">{{ row.handicap }}</span></span>
@@ -230,10 +230,10 @@ const checkScreenWidth = () => {
   isMobileBrowser.value = window.innerWidth < 768;
 };
 
-const formatName = (fullName) => {
-  if (!fullName) return "";
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length <= 1) return fullName;
+const formatName = (row) => {
+  if (row.first_name && row.last_name) return `${row.first_name.charAt(0).toUpperCase()}. ${row.last_name}`;
+  const parts = row.trim().split(/\s+/);
+  if (parts.length <= 1) return row;
   const firstName = parts[0];
   const lastName = parts.slice(1).join(" "); 
   return `${firstName.charAt(0).toUpperCase()}. ${lastName}`;

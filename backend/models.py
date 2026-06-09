@@ -44,7 +44,8 @@ class Tournament(Base):
     has_cut = Column(Boolean, default=False)
     cut_percentage = Column(Integer, nullable=True)
     num_rounds = Column(Integer, default=1, nullable=False)
-    is_public = Column(Boolean, default=False) # NIEUW: Standaard verborgen
+    is_public = Column(Boolean, default=False)
+    is_live = Column(Boolean, default=False)
 
     course = relationship("Course", back_populates="tournaments")
     players = relationship("Player", back_populates="tournament", cascade="all, delete-orphan")

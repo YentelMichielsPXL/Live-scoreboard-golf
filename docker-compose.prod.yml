@@ -23,6 +23,8 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://user:ThisIsAnHardPassw0rd@db:5432/golfdb
+      - SECRET_USERNAME=${SECRET_USERNAME}
+      - SECRET_PASSWORD=${SECRET_PASSWORD}
     
     depends_on:
       db:

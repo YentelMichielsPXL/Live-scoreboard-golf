@@ -172,53 +172,84 @@
       </div>
     </div>
 
+    <div v-if="userRole === 'admin'" class="d-none d-md-block">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="btn-group bg-white p-1 rounded shadow-sm border">
+          <button @click="activeGender = 'ALL'" class="btn btn-sm fw-bold" :class="activeGender === 'ALL' ? 'btn-primary' : 'btn-outline-secondary border-0'">
+            🌍 ALLE
+          </button>
+          <button @click="activeGender = 'M'" class="btn btn-sm fw-bold" :class="activeGender === 'M' ? 'btn-primary' : 'btn-outline-secondary border-0'">
+            👨 MANNEN
+          </button>
+          <button @click="activeGender = 'F'" class="btn btn-sm fw-bold" :class="activeGender === 'F' ? 'btn-primary' : 'btn-outline-secondary border-0'">
+            👩‍🦰 VROUWEN
+          </button>
+        </div>
+        <small class="text-muted fst-italic">Klik op de kolomkoppen om te sorteren</small>
+      </div>
 
-    <div v-if="userRole === 'admin'" class="card shadow-sm border-0 d-none d-md-block">
-      <div class="card-body p-0 table-responsive">
-        <table class="table table-bordered table-striped align-middle m-0 text-center">
-          <thead class="table-dark">
-            <tr>
-              <th class="text-start ps-3" style="min-width: 200px;">Speler</th>
-              <th style="min-width: 160px;">Status / Acties</th>
-              <th v-for="h in 18" :key="h" style="width: 45px; min-width: 45px;">H{{ h }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="player in players" :key="player.id" :class="{'table-danger text-muted opacity-50': player.status !== 'ACTIVE'}">
-              <td class="text-start ps-3 table-light">
-                <div class="fw-bold">
-                  {{ player.gender === 'F' ? '👩‍🦰' : '🏌️' }} {{ player.first_name }} {{ player.last_name }}
-                  <span v-if="player.status === 'DQ'" class="badge bg-danger ms-1">DQ</span>
-                  <span v-if="player.status === 'WD'" class="badge bg-warning text-dark ms-1">WD</span>
-                  <span v-if="player.status === 'CUT'" class="badge bg-secondary ms-1 text-dark">CUT</span>
-                </div>
-                <small class="text-muted">Hcp: {{ player.handicap }} | {{ player.gender }}</small>
-              </td>
-              <td class="p-2">
-                <div class="d-flex gap-1 align-items-center justify-content-center">
-                  <select :value="player.status" @change="changePlayerStatus(player.id, $event.target.value)" class="form-select form-select-sm py-0" style="font-size: 0.8rem; height: 28px;">
-                    <option value="ACTIVE">🟢 Speelt</option>
-                    <option value="WD">🟡 WD</option>
-                    <option value="DQ">🔴 DQ</option>
-                    <option value="CUT">⚪ CUT</option>
-                  </select>
-                  <button @click="removePlayer(player.id)" class="btn btn-sm btn-outline-danger border-0 p-1">🗑️</button>
-                </div>
-              </td>
-              <td v-for="h in 18" :key="h" class="p-1">
-                <input 
-                  type="number" 
-                  min="1" max="15" 
-                  class="form-control form-control-sm text-center px-0 fw-bold"
-                  :value="getScore(player, activeRound, h)"
-                  @change="saveHoleScore(player.id, h, $event.target.value)"
-                  :disabled="player.status !== 'ACTIVE'"
-                  @focus="$event.target.select()"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-bordered table-striped align-middle m-0 text-center">
+            <thead class="table-dark">
+              <tr>
+                <th @click="sortBy('name')" class="text-start ps-3" style="min-width: 180px; cursor: pointer;">
+                  Speler <span v-if="sortKey === 'name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th @click="sortBy('handicap')" style="min-width: 90px; cursor: pointer;">
+                  HCP <span v-if="sortKey === 'handicap'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th @click="sortBy('status')" style="min-width: 150px; cursor: pointer;">
+                  Status <span v-if="sortKey === 'status'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th v-for="h in 18" :key="h" style="width: 45px; min-width: 45px;">H{{ h }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="player in filteredAndSortedPlayers" :key="player.id" :class="{'table-danger text-muted opacity-50': player.status !== 'ACTIVE'}">
+                <td class="text-start ps-3 table-light">
+                  <div class="fw-bold">
+                    {{ player.gender === 'F' ? '👩‍🦰' : '👨' }} {{ player.first_name }} {{ player.last_name }}
+                    <span v-if="player.status === 'DQ'" class="badge bg-danger ms-1">DQ</span>
+                    <span v-if="player.status === 'WD'" class="badge bg-warning text-dark ms-1">WD</span>
+                    <span v-if="player.status === 'CUT'" class="badge bg-secondary ms-1 text-dark">CUT</span>
+                  </div>
+                  <small class="text-muted">{{ player.gender === 'M' ? 'Man' : 'Vrouw' }}</small>
+                </td>
+                
+                <td class="fw-bold bg-light">
+                  {{ player.handicap !== null ? player.handicap : '-' }}
+                </td>
+
+                <td class="p-2">
+                  <div class="d-flex gap-1 align-items-center justify-content-center">
+                    <select :value="player.status" @change="changePlayerStatus(player.id, $event.target.value)" class="form-select form-select-sm py-0" style="font-size: 0.8rem; height: 28px;">
+                      <option value="ACTIVE">🟢 Speelt</option>
+                      <option value="WD">🟡 WD</option>
+                      <option value="DQ">🔴 DQ</option>
+                      <option value="CUT">⚪ CUT</option>
+                    </select>
+                    <button @click="removePlayer(player.id)" class="btn btn-sm btn-outline-danger border-0 p-1">🗑️</button>
+                  </div>
+                </td>
+                <td v-for="h in 18" :key="h" class="p-1">
+                  <input 
+                    type="number" 
+                    min="1" max="15" 
+                    class="form-control form-control-sm text-center px-0 fw-bold"
+                    :value="getScore(player, activeRound, h)"
+                    @change="saveHoleScore(player.id, h, $event.target.value)"
+                    :disabled="player.status !== 'ACTIVE'"
+                    @focus="$event.target.select()"
+                  />
+                </td>
+              </tr>
+              <tr v-if="filteredAndSortedPlayers.length === 0">
+                <td colspan="21" class="text-muted py-4">Geen spelers gevonden in deze categorie.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -240,6 +271,11 @@ const csvFile = ref(null)
 const savedFlight = sessionStorage.getItem('active_flight')
 const flightIds = ref(savedFlight ? JSON.parse(savedFlight) : [null, null, null])
 
+// Sorteer- en filterstatussen
+const activeGender = ref('ALL') // Start standaard op 'ALLE'
+const sortKey = ref('handicap') 
+const sortOrder = ref('asc')
+
 watch(flightIds, (newFlight) => {
   sessionStorage.setItem('active_flight', JSON.stringify(newFlight))
 }, { deep: true })
@@ -252,6 +288,46 @@ const players = computed(() => {
     const hcpB = b.handicap !== null ? b.handicap : 99
     return hcpA - hcpB
   })
+})
+
+const sortBy = (key) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortKey.value = key
+    sortOrder.value = 'asc'
+  }
+}
+
+const filteredAndSortedPlayers = computed(() => {
+  // 1. Filter op 'ALL', 'M' of 'F'
+  let result = activeGender.value === 'ALL' 
+    ? [...players.value] 
+    : players.value.filter(p => p.gender === activeGender.value)
+
+  // 2. Sorteer de gefilterde lijst
+  result.sort((a, b) => {
+    let modifier = sortOrder.value === 'desc' ? -1 : 1
+    let valA, valB
+
+    if (sortKey.value === 'name') {
+      valA = `${a.first_name} ${a.last_name}`.toLowerCase()
+      valB = `${b.first_name} ${b.last_name}`.toLowerCase()
+    } else if (sortKey.value === 'status') {
+      valA = a.status || ''
+      valB = b.status || ''
+    } else {
+      // Sorteer op handicap
+      valA = a.handicap !== null ? a.handicap : 99
+      valB = b.handicap !== null ? b.handicap : 99
+    }
+
+    if (valA < valB) return -1 * modifier
+    if (valA > valB) return 1 * modifier
+    return 0
+  })
+
+  return result
 })
 
 const clearFlight = () => {
