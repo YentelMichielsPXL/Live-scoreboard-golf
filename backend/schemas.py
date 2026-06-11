@@ -46,6 +46,7 @@ class Hole(HoleBase):
 
 class CourseBase(BaseModel):
     name: str
+    alias: Optional[str] = None
     num_holes: int
     course_rating_men: float
     slope_rating_men: int

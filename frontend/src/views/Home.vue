@@ -143,17 +143,4 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.home-wrapper { background-color: #0b2516; }
-.scoreboard-title { color: #ffffff; font-family: 'Arial Black', sans-serif; font-weight: 900; letter-spacing: 1px; }
-.bg-black-card { background-color: #12161f; }
-.fw-black { font-weight: 900; }
-
-.tournament-card { transition: transform 0.2s ease, background-color 0.2s ease; }
-.tournament-card:hover { transform: translateY(-2px); background-color: #171d29; }
-
-.tournament-card-completed:hover { background-color: #1a1e26; }
-
-.pulse-effect { animation: pulse 1.5s infinite; }
-@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-</style>
+<style src="../assets/styles/home.css"></style>

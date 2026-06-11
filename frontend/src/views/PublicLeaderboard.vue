@@ -28,11 +28,11 @@
               
               <!-- Handmatige Paginering Knoppen -->
               <div v-if="totalPages > 1" class="d-inline-flex align-items-center gap-2 bg-dark px-2 py-1 rounded border border-secondary" style="font-size: 0.7rem; height: 26px;">
-                <button @click="prevPage" class="btn btn-xs text-white p-0 px-1 border-0 fw-bold" :disabled="currentPage === 0" style="line-height: 1; opacity: currentPage === 0 ? 0.3 : 1;">
+                <button @click="prevPage" class="btn btn-xs text-white p-0 px-1 border-0 fw-bold" :disabled="currentPage === 0" :style="{ lineHeight: 1, opacity: currentPage === 0 ? 0.3 : 1 }">
                   ◀
                 </button>
                 <span class="text-uppercase fw-bold text-white-50">PAGINA {{ currentPage + 1 }} / {{ totalPages }}</span>
-                <button @click="nextPage" class="btn btn-xs text-white p-0 px-1 border-0 fw-bold" :disabled="currentPage + 1 === totalPages" style="line-height: 1; opacity: currentPage + 1 === totalPages ? 0.3 : 1;">
+                <button @click="nextPage" class="btn btn-xs text-white p-0 px-1 border-0 fw-bold" :disabled="currentPage + 1 === totalPages" :style="{ lineHeight: 1, opacity: currentPage + 1 === totalPages ? 0.3 : 1 }">
                   ▶
                 </button>
               </div>
@@ -64,7 +64,7 @@
             </button>
           </div>
 
-          <span v-if="leaderboardData.is_live" class="badge bg-danger pulse-effect px-2 py-2 fw-bold text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px">
+          <span v-if="leaderboardData.is_live && leaderboardData.is_active" class="badge bg-danger pulse-effect px-2 py-2 fw-bold text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px">
             <span>🔴 LIVE</span>
           </span>
         </div>
@@ -98,6 +98,9 @@
                     <div class="player-name text-white fw-bold fs-5 text-truncate-custom m-0 p-0 w-100">{{ formatName(row) }}</div>
                     <div class="handicap-sub text-white-50 small m-0 p-0 d-flex align-items-center gap-1 mt-1" style="font-size: 0.75rem; line-height: 1;">
                       <span>HCP: <span class="text-warning fw-bold">{{ row.handicap }}</span></span>
+                      <span class="d-inline-flex d-md-none align-items-center justify-content-center badge bg-secondary text-white font-numeric px-1 py-1 ms-1" style="font-size: 0.6rem; line-height: 1;">
+                        Thru: {{ row.thru }}
+                      </span>
                     </div>
                   </div>
                 </td>
@@ -126,6 +129,9 @@
                         <div class="player-name text-white fw-bold fs-5 text-truncate-custom m-0 p-0 w-100">{{ formatName(row) }}</div>
                         <div class="handicap-sub text-white-50 small m-0 p-0 d-flex align-items-center gap-1 mt-1" style="font-size: 0.75rem; line-height: 1;">
                           <span>HCP: <span class="text-warning fw-bold">{{ row.handicap }}</span></span>
+                          <span class="d-inline-flex d-md-none align-items-center justify-content-center badge bg-secondary text-white font-numeric px-1 py-1 ms-1" style="font-size: 0.6rem; line-height: 1;">
+                            Thru: {{ row.thru }}
+                          </span>
                         </div>
                       </div>
                     </td>
@@ -233,7 +239,7 @@
           <table class="table table-custom m-0 text-center align-middle text-uppercase" style="border-bottom: none !important;">
             <thead>
               <tr class="header-main">
-                <th style="width: 75px;"><div class="header-height-lock text-warning bg-black fw-black">TOT</div></th>
+                <th style="width: 75px;"><div class="header-height-lock text-warning fw-black">TOT</div></th>
               </tr>
             </thead>
             <!-- AANGEPAST: transition-group is terug, lijn enkel als currentPage > 0 -->
@@ -273,6 +279,7 @@
 
       </div>
     </div>
+    <div class="floating-credit">©Created by Yentel Michiels</div>
   </div>
 </template>
 
@@ -666,7 +673,6 @@ onMounted(() => {
   checkScreenWidth();
   window.addEventListener('resize', checkScreenWidth);
   
-  toggleAutoSwitch();
 });
 
 onUnmounted(() => {
@@ -676,215 +682,5 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.leaderboard-wrapper {
-  background-color: #0b2516; 
-  min-height: 100vh;
-}
 
-.scoreboard-flex-container {
-  display: flex;
-  width: 100%;
-}
-
-.scoreboard-side-block {
-  flex: 0 0 auto;
-}
-
-.left-block {
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 5;
-}
-
-.right-block {
-  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 5;
-}
-
-.scoreboard-middle-scroll {
-  flex: 1 1 auto;
-  overflow-x: auto !important;
-}
-
-/* TABLE BASIS SETTINGS */
-.table-custom {
-  border-collapse: separate !important; 
-  border-spacing: 0 !important;
-}
-
-.table-custom th, .table-custom td {
-  padding: 0 !important; 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  vertical-align: middle !important;
-  box-sizing: border-box !important;
-}
-
-.table-custom thead th {
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-/* --- TV & GROTE SCHERMEN OPTIMALISATIE --- */
-@media (min-width: 1200px) {
-  .leaderboard-wrapper {
-    zoom: 1; 
-  }
-  
-  .left-fixed-table {
-    table-layout: fixed !important;
-    width: 360px !important;
-  }
-  .cell-pos { width: 45px !important; }
-  .cell-player { width: 175px !important; }
-  .cell-metric { width: 75px !important; }
-  .cell-thru { width: 65px !important; }
-
-  .text-truncate-custom {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: block !important;
-    max-width: 100% !important;
-  }
-  
-  .table-custom th {
-    height: 53px !important;
-    line-height: 1.1 !important;
-  }
-  
-  /* Hard-locked rij hoogtes inclusief border */
-  .table-custom tbody tr {
-    height: 53px !important;
-    max-height: 53px !important;
-  }
-
-  .table-custom tbody td {
-    height: 53px !important;
-    max-height: 53px !important;
-    padding: 0 !important; 
-    vertical-align: middle !important;
-    box-sizing: border-box !important;
-  }
-
-  .header-height-lock, .cell-height-lock {
-    height: 52px !important; /* De binnenkant is 52px, de border is 1px */
-    max-height: 52px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box !important;
-  }
-
-  .cell-height-lock span[class^="score-"] {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 32px !important;
-    width: 32px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-    flex-shrink: 0;
-  }
-
-  .player-name {
-    font-size: 1.15rem !important;
-    line-height: 1.2 !important;
-  }
-
-  .sticky-leader-row {
-    background-color: rgba(255, 255, 255, 0.03) !important;
-  }
-  
-  .sticky-leader-border td {
-    border-bottom: 2px solid #ffc107 !important; 
-  }
-}
-
-/* --- OPTIMALISATIE VOOR SMARTPHONES --- */
-@media (max-width: 767.98px) {
-  .scoreboard-flex-container {
-    display: block;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-  .left-block {
-    width: 100% !important;
-    box-shadow: none !important;
-  }
-
-  .mobile-responsive-grid thead, 
-  .mobile-responsive-grid tbody, 
-  .mobile-responsive-grid tr {
-    display: block !important;
-    width: 100% !important;
-  }
-
-  .mobile-grid-header {
-    display: block !important;
-  }
-  .mobile-grid-header .header-main {
-    display: grid !important;
-    grid-template-columns: 42px 1fr 75px 65px !important;
-    align-items: center !important;
-    padding: 4px !important; 
-    margin-bottom: 4px !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  }
-  .mobile-grid-header th {
-    display: block !important;
-    padding: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    border: none !important;
-    font-size: 0.75rem !important;
-    color: rgba(255,255,255,0.6) !important;
-  }
-
-  .mobile-responsive-grid tbody tr {
-    display: grid !important;
-    grid-template-columns: 42px 1fr 75px 65px !important;
-    align-items: center !important;
-    height: auto !important; 
-    min-height: 65px !important; 
-    max-height: none !important; 
-    padding: 4px !important; 
-    margin-bottom: 6px !important; 
-    background-color: rgba(255, 255, 255, 0.03) !important; 
-    border: none !important; 
-    border-radius: 6px !important; 
-    box-shadow: none !important; 
-  }
-
-  .table-custom td {
-    border-bottom: none !important; 
-    padding: 4px 2px !important; 
-    height: auto !important;
-    max-height: none !important;
-    min-height: auto !important;
-  }
-
-  .cell-pos    { grid-column: 1 !important; text-align: center !important; width: 100% !important; }
-  .cell-player { grid-column: 2 !important; text-align: left !important; width: 100% !important; min-width: 0 !important; }
-  .cell-metric { grid-column: 3 !important; text-align: center !important; width: 100% !important; }
-  .cell-tot    { grid-column: 4 !important; text-align: center !important; width: 100% !important; }
-  
-  .cell-cutline {
-    grid-column: 1 / span 4 !important;
-    width: 100% !important;
-    margin: 4px 0 !important;
-    padding: 0 !important;
-  }
-
-  .text-truncate-custom {
-    max-width: 100% !important;
-  }
-}
-
-/* --- VANAF TABLET EN GROTER --- */
-@media (min-width: 768px) {
-  .d-none.d-md-table-cell-custom {
-    display: table-cell !important;
-  }
-}
-</style>
 <style src="../assets/styles/leaderboard.css"></style>

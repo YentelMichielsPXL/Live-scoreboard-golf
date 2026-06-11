@@ -1,25 +1,31 @@
 /* ============================================================
-   leaderboard.css  —  Scoped styles for views/PublicLeaderboard.vue
+   leaderboard.css  —  Combined Styles for PublicLeaderboard
    ============================================================ */
 
-/* --- Force dark background on the whole page --- */
+/* --- 1. GLOBAL & BASE STYLES --- */
 :global(html),
 :global(body) {
-  background-color: #0c0e12 !important;
+  background-color: #0b2516 !important;
   overflow-x: hidden;
 }
 
-/* --- Layout & typography helpers --- */
-.img {
-  margin-bottom: 5px;
-}
+.img { margin-bottom: 5px; }
+.fw-black { font-weight: 900; }
+.font-numeric { font-family: 'Courier New', Courier, monospace; }
 
-.fw-black {
-  font-weight: 900;
-}
+.bg-general { background-color: rgba(11,37,22,0.4); }
+.bg-black-card { background-color: #12161f; }
 
+.style-small { font-size: 0.72rem; }
+.text-muted-white { color: #d1d5db; }
+.text-muted-dash { color: #4b5563; }
+.text-white { color: #ffffff; }
+
+/* --- 2. MAIN CONTAINERS --- */
 .leaderboard-wrapper {
-  background-color: #0b2516;
+  background-color: #0b2516; 
+  min-height: 100vh;
+  position: relative; 
   overflow-x: hidden;
 }
 
@@ -29,49 +35,55 @@
   font-weight: 900;
 }
 
-.font-numeric {
-  font-family: 'Courier New', Courier, monospace;
+.scoreboard-flex-container {
+  display: flex;
+  width: 100%;
+  background-color: #0c0e12;
 }
 
-.bg-general {
-  background-color: rgba(11,37,22,0.4);
+.scoreboard-side-block { flex: 0 0 auto; }
+.left-block { box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5); z-index: 5; }
+.right-block { box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5); z-index: 5; }
+
+.scoreboard-middle-scroll {
+  flex: 1 1 auto;
+  overflow-x: auto !important;
+  background-color: #0c0e12;
 }
 
-.bg-black-card {
-  background-color: #12161f;
-}
-
-.style-small {
-  font-size: 0.72rem;
-}
-
-.text-muted-white {
-  color: #d1d5db;
-}
-
-.text-muted-dash {
-  color: #4b5563;
-}
-
-/* --- Responsive scrolling --- */
+/* --- 3. TABLE BASE SETTINGS --- */
 .table-responsive {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* --- Leaderboard table --- */
 .table-custom {
   --bs-table-bg: #0b2516;
   background-color: #0b2516 !important;
   color: #ffffff !important;
+  border-collapse: separate !important; 
+  border-spacing: 0 !important;
+}
+
+.table-custom th, .table-custom td {
+  padding: 0 !important; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  white-space: nowrap;
 }
 
 .table-custom th {
-  background-color: #0b2516 !important;
   color: #ffc107 !important;
-  padding: 6px 4px;
   font-size: 0.8rem;
-  border-bottom: 2px solid #0c0e12 !important;
+}
+
+.table-custom thead th {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.table-custom tbody tr {
+  height: 53px !important;
 }
 
 .hole-header {
@@ -81,23 +93,12 @@
   line-height: 1.2;
 }
 
-/* --- Column background variants --- */
-.bg-dark-gray {
-  background-color: #2d3545 !important;
-}
-
-.bg-dark-gray-rows {
-  background-color: #0b2516 !important;
-}
+.bg-dark-gray { background-color: #2d3545 !important; }
+.bg-dark-gray-rows { background-color: #0b2516 !important; }
 
 .border-inline-dark {
   border-left: 1px solid #1a202c;
   border-right: 1px solid #1a202c;
-}
-
-/* --- Row styling --- */
-.leaderboard-row {
-  border-bottom: 1px solid #353536 !important;
 }
 
 .cut-line-row {
@@ -105,7 +106,7 @@
   background: transparent !important;
 }
 
-/* --- Main score badge (To Par / Stableford points) --- */
+/* --- 4. BADGES & TOTALS --- */
 .total-score-badge {
   display: inline-flex;
   align-items: center;
@@ -119,39 +120,19 @@
   white-space: nowrap;
 }
 
-/* --- Smooth position-change animations --- */
-.leaderboard-flip-move {
-  transition: transform 2s cubic-bezier(0.55, 0, 0.1, 1);
-}
-
-.leaderboard-row {
-  transition:
-    background-color 0.2s ease,
-    transform 2s cubic-bezier(0.55, 0, 0.1, 1);
-}
-
-.leaderboard-flip-leave-active {
-  display: none;
-}
-
-/* ============================================================
-   Hole-score colour-coding
-   ============================================================ */
+/* --- 5. HOLE SCORE COLOUR CODING --- */
 .score-eagle {
-     background-color: #ff9500;
-     color: #000000;
-     border-radius: 50%;
-     display: inline-block;
-     width: 26px;
-     height: 26px;
-     line-height: 26px;
-     text-align: center;
-     box-shadow: 0 0 0 2px #ff9500;
-     font-weight: 900;
-     font-size: 0.85rem;
-}
-.text-white {
-  color: #ffffff;
+  background-color: #ff9500;
+  color: #000000;
+  border-radius: 50%;
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  box-shadow: 0 0 0 2px #ff9500;
+  font-weight: 900;
+  font-size: 0.85rem;
 }
 
 .score-birdie {
@@ -200,76 +181,115 @@
   font-size: 0.85rem;
 }
 
-
-
-/* ============================================================
-   Badge animations
-   ============================================================ */
-.pulse-effect {
-  animation: pulse 1.5s infinite;
+/* --- 6. FLOATING CREDIT --- */
+.floating-credit {
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.25);
+  z-index: 1000;
+  pointer-events: none;
+  letter-spacing: 1px;
+  font-weight: bold;
 }
 
-.badge-pulse {
-  animation: badgelight 2.5s infinite;
-}
+/* --- 7. ANIMATIONS --- */
+.pulse-effect { animation: pulse 1.5s infinite; }
+.badge-pulse { animation: badgelight 2.5s infinite; }
 
 @keyframes pulse {
   0%   { opacity: 0.4; }
   50%  { opacity: 1;   }
   100% { opacity: 0.4; }
 }
-
 @keyframes badgelight {
   0%   { opacity: 0.8; }
   50%  { opacity: 1; box-shadow: 0 0 12px rgba(220, 53, 69, 0.8); }
   100% { opacity: 0.8; }
 }
-/* De hoofd container verdeelt de ruimte via flexbox */
-.scoreboard-flex-container {
-  display: flex;
-  width: 100%;
-  background-color: #0c0e12;
+
+.leaderboard-flip-move {
+  transition: transform 2s cubic-bezier(0.55, 0, 0.1, 1);
+}
+.leaderboard-row {
+  transition: background-color 0.2s ease, transform 2s cubic-bezier(0.55, 0, 0.1, 1);
+}
+.leaderboard-flip-leave-active {
+  display: none;
 }
 
-.scoreboard-side-block {
-  flex: 0 0 auto;
+/* --- 8. TV & DESKTOP OPTIMIZATION (>= 1200px) --- */
+@media (min-width: 1200px) {
+  .leaderboard-wrapper { zoom: 1; }
+  
+  .left-fixed-table {
+    table-layout: fixed !important;
+    width: 360px !important;
+  }
+  
+  .cell-pos { width: 45px !important; }
+  .cell-player { width: 175px !important; }
+  .cell-metric { width: 75px !important; }
+  .cell-thru { width: 65px !important; }
+
+  .text-truncate-custom {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    max-width: 100% !important;
+  }
+  
+  .table-custom th {
+    height: 53px !important;
+    line-height: 1.1 !important;
+  }
+  
+  .table-custom tbody tr, .table-custom tbody td {
+    height: 53px !important;
+    max-height: 53px !important;
+  }
+
+  .header-height-lock, .cell-height-lock {
+    height: 52px !important; 
+    max-height: 52px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box !important;
+  }
+
+  .cell-height-lock span[class^="score-"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 32px !important;
+    width: 32px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .player-name {
+    font-size: 1.15rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .sticky-leader-row { background-color: rgba(255, 255, 255, 0.03) !important; }
+  .sticky-leader-border td { border-bottom: 2px solid #ffc107 !important; }
 }
 
-.left-block {
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 5;
-}
-
-.right-block {
-  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 5;
-}
-
-.scoreboard-middle-scroll {
-  flex: 1 1 auto;
-  overflow-x: auto !important;
-  background-color: #0c0e12;
-}
-
-/* Forceer exact gelijke rijhoogtes */
-.table-custom tbody tr {
-  height: 53px !important;
-}
-.table-custom th {
-  height: 52px !important;
-  vertical-align: middle;
-}
-
-.table-custom td, .table-custom th {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  white-space: nowrap;
-}
-
-/* --- OPTIMALISATIE VOOR SMARTPHONES --- */
+/* --- 9. SMARTPHONE OPTIMIZATION (< 768px) --- */
 @media (max-width: 767.98px) {
   .scoreboard-flex-container {
     display: block;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
+  
   .left-block {
     width: 100% !important;
     box-shadow: none !important;
@@ -282,37 +302,86 @@
     width: 100% !important;
   }
 
-  .mobile-responsive-grid tr {
+  /* VERBERG DE THRU KOLOM OP MOBIEL (Zit al in de badge) */
+  .cell-thru {
+    display: none !important;
+  }
+
+  .mobile-grid-header { display: block !important; }
+  
+  /* GRID IS NU 4 KOLOMMEN Breed: POS | PLAYER | TO PAR | TOT */
+  .mobile-grid-header .header-main, .mobile-responsive-grid tbody tr {
     display: grid !important;
-    grid-template-columns: 42px 1fr 75px 65px !important;
+    grid-template-columns: 40px 1fr 75px 60px !important;
     align-items: center !important;
-    padding: 0 4px !important;
+    padding: 0 !important; 
+  }
+  
+  .mobile-grid-header .header-main {
+    margin-bottom: 0 !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .mobile-grid-header th {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0 !important;
+    height: auto !important;
+    border: none !important;
+    font-size: 0.65rem !important;
+    color: rgba(255,255,255,0.6) !important;
+  }
+  
+  .mobile-grid-header th.cell-player {
+    justify-content: flex-start !important;
+    padding-left: 8px !important;
+  }
+
+  /* RIJEN ZIJN NU EEN SCHONE LIJST ZONDER BLOKKERIGE ACHTERGROND */
+  .mobile-responsive-grid tbody tr {
+    height: auto !important; 
+    min-height: 56px !important; 
+    max-height: none !important; 
+    margin-bottom: 0 !important; 
+    background-color: transparent !important; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; 
+    border-radius: 0 !important; 
+  }
+
+  .table-custom td {
+    border-bottom: none !important; 
+    padding: 4px 0 !important; 
+    height: auto !important;
+    max-height: none !important;
   }
 
   .cell-pos    { grid-column: 1 !important; text-align: center !important; width: 100% !important; }
-  .cell-player { grid-column: 2 !important; text-align: left !important; width: 100% !important; min-width: 0 !important; }
+  .cell-player { grid-column: 2 !important; text-align: left !important; width: 100% !important; min-width: 0 !important; padding-left: 8px !important; }
   .cell-metric { grid-column: 3 !important; text-align: center !important; width: 100% !important; }
   .cell-tot    { grid-column: 4 !important; text-align: center !important; width: 100% !important; }
   
   .cell-cutline {
     grid-column: 1 / span 4 !important;
     width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  .text-truncate-mobile {
+  .text-truncate-custom, .text-truncate-mobile {
+    max-width: 100% !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: block !important;
-    width: 100% !important;
   }
-
-  .table-custom td {
-    padding: 4px 2px !important;
+  .mobile-grid-header th.cell-thru,
+  .mobile-responsive-grid  td.cell-thru {
+    display: none !important;
   }
 }
 
-/* --- VANAF TABLET EN GROTER --- */
+/* --- 10. TABLET OPTIMIZATION (>= 768px) --- */
 @media (min-width: 768px) {
   .d-none.d-md-table-cell-custom {
     display: table-cell !important;

@@ -25,6 +25,7 @@ def create_course(
     
     db_course = models.Course(
         name=course.name, 
+        alias=course.alias,
         num_holes=course.num_holes, 
         course_rating_men=course.course_rating_men, 
         slope_rating_men=course.slope_rating_men,
@@ -68,6 +69,7 @@ def update_course(course_id: int, course_update: schemas.CourseCreate, db: Sessi
         raise HTTPException(status_code=404, detail="Golfbaan niet gevonden")
     
     db_course.name = course_update.name
+    db_course.alias = course_update.alias
     db_course.num_holes = course_update.num_holes
     db_course.course_rating_men = course_update.course_rating_men
     db_course.slope_rating_men = course_update.slope_rating_men

@@ -27,7 +27,7 @@
               <select v-model="newTournament.course_id" class="form-select" required>
                 <option value="" disabled>Kies een baan...</option>
                 <option v-for="course in availableCourses" :key="course.id" :value="course.id">
-                  {{ course.name }} ({{ course.num_holes }} holes)
+                  {{ course.name }} {{ course.alias ? `(${course.alias})` : '' }} ({{ course.num_holes }} holes)
                 </option>
               </select>
             </div>

@@ -14,6 +14,7 @@ class Course(Base):
     __tablename__ = "courses"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
+    alias = Column(String, nullable=True)
     num_holes = Column(Integer, default=18)
     
     course_rating_men = Column(Float, nullable=False, default=72.0)

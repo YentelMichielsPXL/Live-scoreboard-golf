@@ -17,6 +17,10 @@
               <input v-model="newCourse.name" type="text" class="form-control" placeholder="Bijv. The International" required />
             </div>
             <div class="col-md-2">
+              <label class="form-label">Alias / Teebox</label>
+              <input v-model="newCourse.alias" type="text" class="form-control" placeholder="Bijv. Yellow Tee" />
+            </div>
+            <div class="col-md-2">
               <label class="form-label">Aantal Holes</label>
               <select v-model="newCourse.num_holes" @change="generateHoleRows" class="form-select" :disabled="isEditing">
                 <option :value="9">9 Holes</option>
@@ -108,7 +112,10 @@
           </thead>
           <tbody>
             <tr v-for="course in courses" :key="course.id" :class="{'table-warning': isEditing && editingId === course.id}">
-              <td class="ps-4 align-middle fw-bold">{{ course.name }}</td>
+              <td class="ps-4 align-middle fw-bold">
+                {{ course.name }}
+                <span v-if="course.alias" class="badge bg-secondary ms-2">{{ course.alias }}</span>
+              </td>
               <td class="align-middle"><span class="badge bg-secondary">{{ course.num_holes }} Holes</span></td>
               <td class="align-middle text-primary fw-bold">{{ course.course_rating_men }} / {{ course.slope_rating_men }}</td>
               <td class="align-middle text-danger fw-bold">{{ course.course_rating_women }} / {{ course.slope_rating_women }}</td>
@@ -141,6 +148,7 @@ const editingId = ref(null)
 
 const newCourse = ref({
   name: '',
+  alias: '',
   num_holes: 18,
   course_rating_men: 72.0,
   slope_rating_men: 113,
@@ -164,6 +172,7 @@ const startEdit = (course) => {
   
   newCourse.value = {
     name: course.name,
+    alias: course.alias || '',
     num_holes: course.num_holes,
     course_rating_men: course.course_rating_men,
     slope_rating_men: course.slope_rating_men,
@@ -183,6 +192,7 @@ const cancelEdit = () => {
 
 const resetForm = () => {
   newCourse.value.name = ''
+  newCourse.value.alias = ''
   newCourse.value.course_rating_men = 72.0
   newCourse.value.slope_rating_men = 113
   newCourse.value.course_rating_women = 72.0
@@ -224,3 +234,4 @@ onMounted(() => {
   generateHoleRows()
 })
 </script>
+

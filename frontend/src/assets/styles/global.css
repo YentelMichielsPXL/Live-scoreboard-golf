@@ -25,3 +25,7 @@
     max-width: 100% !important;
   }
 }
+
+.badge {
+  background-color: #504f55;
+}
